@@ -47,5 +47,4 @@ if __name__ == "__main__":
 	[2,3,5,1,16,6,0]]
 	for i in range(len(array)):
 		output = solution3(array[i])
-		print(output)
-		print("---"*6)
+		print(output,end=' ')

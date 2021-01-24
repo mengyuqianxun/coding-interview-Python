@@ -17,6 +17,5 @@ if __name__ == '__main__':
 	index = np.random.randint(20,99,size = 200)
 	age = index.tolist()
 	age = AgeSort(age)
-	for i in range(len(age)):
-		print(age[i],end = " ")
-	print('\n')
+	print(age)
+

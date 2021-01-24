@@ -10,11 +10,9 @@ def BubbleSort(array):
 				array[j],array[j+1] = array[j+1],array[j]
 	return array
 
-
 if __name__ == '__main__':
 	array = [13,2,8,3,40,3,9,0,7]
 	array = BubbleSort(array)
 	for i in range(len(array)):
 		print(array[i],end = ' ')
-	print('\n')
 

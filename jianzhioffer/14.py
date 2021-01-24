@@ -26,6 +26,4 @@ def Merge(a,b):
 if __name__ == '__main__':
 	array = [47,29,71,99,78,19,24,47,1]
 	array = MergeSort(array)
-	for i in range(len(array)):
-		print(array[i],end = ' ')
-	print('\n')
+	print(array)

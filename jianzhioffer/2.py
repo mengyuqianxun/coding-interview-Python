@@ -37,6 +37,5 @@ if __name__ == "__main__":
 	[]]
 	for i in range(len(array)):
 		output = solution(array[i])
-		print(output)
-		print("---"*6)
+		print(output,end=' ')
 

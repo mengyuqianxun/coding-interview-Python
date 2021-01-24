@@ -76,21 +76,20 @@ class Stack2():
 		else:
 			return None
 
-
 if __name__=="__main__":
     s1 = Stack1()
     s1.push(4)
-    print(u'栈顶元素为：'+ str(s1.top()))
-    print(u'栈大小为：'+ str(s1.size()))
+    print('栈顶元素为：'+ str(s1.top()))
+    print('栈大小为：'+ str(s1.size()))
     s1.pop()
-    print(u'弹栈成功')
+    print('弹栈成功')
     s1.pop()
     print('******'*6)
     s2 = Stack2()
     s2.push(4)
-    print(u'栈顶元素为：'+ str(s2.top()))
-    print(u'栈大小为：'+ str(s2.size()))
+    print('栈顶元素为：'+ str(s2.top()))
+    print('栈大小为：'+ str(s2.size()))
     s2.pop()
-    print(u'弹栈成功')
+    print('弹栈成功')
     s2.pop()
 

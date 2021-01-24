@@ -10,6 +10,4 @@ def InsertSort(arr):
 if __name__ == '__main__':
 	array = [47,29,71,99,78,19,24,47]
 	InsertSort(array)
-	for i in range(len(array)):
-		print(array[i],end = ' ')
-	print('\n')
+	print(array)
