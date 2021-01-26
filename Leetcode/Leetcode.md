@@ -12,7 +12,7 @@
 
 [官方视频题解](https://leetcode-cn.com/problems/regions-cut-by-slashes/solution/you-xie-gang-hua-fen-qu-yu-by-leetcode-67xb/)
 
-考察知识点：[并查集](#并查集(DisjointSets))
+考察知识点：[并查集](#并查集DisjointSets)
 
 「斜杠」、「反斜杠」把单元格拆分成的 2 个三角形的形态，在做合并的时候需要分类讨论。根据「斜杠」、「反斜杠」分割的特点，我们把一个单元格分割成逻辑上的 4 个部分。
 
@@ -87,7 +87,7 @@
 
 # 相关知识点
 
-## 并查集(DisjointSets)
+## 并查集DisjointSets
 
 ### 定义
 
