@@ -8,11 +8,11 @@
 
 在由 1 x 1 方格组成的 N x N 网格 grid 中，每个 1 x 1 方块由 /、\ 或空格构成。这些字符会将方块划分为一些共边的区域。（请注意，反斜杠字符是转义的，因此 \ 用 "\\" 表示）。返回区域的数目。
 
-[959代码](.\959.py)
+[959代码](959.py)
 
 [官方视频题解](https://leetcode-cn.com/problems/regions-cut-by-slashes/solution/you-xie-gang-hua-fen-qu-yu-by-leetcode-67xb/)
 
-考察知识点：[并查集](#并查集(Disjoint Sets))
+考察知识点：[并查集](#并查集(DisjointSets))
 
 「斜杠」、「反斜杠」把单元格拆分成的 2 个三角形的形态，在做合并的时候需要分类讨论。根据「斜杠」、「反斜杠」分割的特点，我们把一个单元格分割成逻辑上的 4 个部分。
 
@@ -63,7 +63,7 @@
 - `1 <= dominoes.length <= 40000`
 - `1 <= dominoes[i][j] <= 9`
 
-[1128代码](.\1128.py)
+[1128代码](1128.py)
 
 `解析`：
 
@@ -87,7 +87,7 @@
 
 # 相关知识点
 
-## 并查集(Disjoint Sets)
+## 并查集(DisjointSets)
 
 ### 定义
 
