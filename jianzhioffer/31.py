@@ -7,14 +7,14 @@ def MaxSubstrLen(s):
 			tmp += s[i]
 		else:
 			index = tmp.find(s[i])
-			f = len(tmp) - 1 - index
+			f = len(tmp) - index
 			tmp = tmp[index + 1:] + s[i]
 		if f > l:
 			l = f
 	return l
 
 if __name__ == '__main__':
-	sList = ['arabcafr','aaaaa','abcdefg','mnkabca']
+	sList = ['arabcacfr','arabcafr','aaaaa','abcdefg','mnkabca']
 	for s in sList:
 		l = MaxSubstrLen(s)
 		print(l,end=' ')
