@@ -2,7 +2,6 @@ class UF:
     def __init__(self, n):
         self.parent = list(range(n))
         self.size = [1] * n
-        # 当前连通分量数目
         self.cnt = n
 
     def find(self, x):
