@@ -46,13 +46,16 @@ class Solution(object):
                     self.parent[x] = self.find(self.parent[x])
                     return self.parent[x]
                 return x
-                
+
             def union(self,x,y):
                 xroot = self.find(x)
                 yroot = self.find(y)
                 if xroot == yroot:
                     return
-                self.parent[xroot] = yroot
+                if self.size[xroot] < self.size[yroot]:
+                    xroot,yroot = yroot,xroot
+                self.parent[yroot] = xroot
+                self.size[xroot] += self.size[yroot]
                 self.cnt -= 1
             def isConnected(self,x,y):
                 return self.find(x) == self.find(y)
