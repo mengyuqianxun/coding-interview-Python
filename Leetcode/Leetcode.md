@@ -101,6 +101,8 @@ Alice 和 Bob 共有一个无向图，其中包含 n 个节点和 3  种类型�
 * 1 <= edges\[i\]\[1\] < edges\[i\]\[2\] <= n
 * 所有元组 (typei, ui, vi) 互不相同
 
+[1579代码](1579.py)
+
 
 
 考察知识点：[并查集](#并查集DisjointSets)
@@ -160,6 +162,8 @@ Alice 和 Bob 共有一个无向图，其中包含 n 个节点和 3  种类型�
 
 [1128代码](1128.py)
 
+
+
 `解析`：
 
 注意到每张牌都是二元组(x,y)，那么用10x+y就可以唯一确定，如果规定让小的为x，那么可以同时确定等价的多米诺骨牌。
@@ -205,6 +209,8 @@ Alice 和 Bob 共有一个无向图，其中包含 n 个节点和 3  种类型�
 
 - `nums` 的长度范围为 `[0, 10000]`。
 - 任何一个 `nums[i]` 将会是一个范围在 `[-1000, 1000]`的整数。
+
+[724代码](724.py)
 
 
 
@@ -264,6 +270,8 @@ Alice 和 Bob 共有一个无向图，其中包含 n 个节点和 3  种类型�
 * columns == heights[i].length
 * 1 <= rows, columns <= 100
 * 1 <= heights\[i\]\[j\] <= 10^6
+
+[1631代码](1631.py)
 
 
 
@@ -378,6 +386,8 @@ edges.sort(key = lambda e:e[2])
 * 2 <= N <= 50.
 * grid\[i\]\[j\] 是 [0, ..., N*N - 1] 的排列。
 
+[839代码](839.py)
+
 
 
 `思路`
@@ -436,9 +446,9 @@ edges.sort(key = lambda e:e[2])
 
 
 
-`思路`：
+`思路`：[并查集](#并查集DisjointSets)
 
-我们把每一个字符串看作点，字符串之间是否相似看作边，那么可以发现本题询问的是给定的图中`有多少连通分量`。于是可以想到使用[并查集](#并查集DisjointSets)维护节点间的连通性。
+我们把每一个字符串看作点，字符串之间是否相似看作边，那么可以发现本题询问的是给定的图中`有多少连通分量`。于是可以想到使用**并查集**维护节点间的连通性。
 
 我们枚举给定序列中的任意一对字符串，检查其`是否具有相似性`，如果相似，那么我们就`将这对字符串相连`。
 
@@ -509,6 +519,8 @@ def isSimilar(self,x,y):
 * 保证爱丽丝与鲍勃的糖果总量不同。
 * 答案肯定存在。
 
+[888代码](888.py)
+
 
 
 记爱丽丝的糖果棒的总大小为$\textit{sumA}$，鲍勃的糖果棒的总大小为$\textit{sumB}$。设答案为{x,y}，即爱丽丝的大小为x的糖果棒与鲍勃的大小为y的糖果棒交换，则有如下等式：
@@ -526,11 +538,396 @@ if x in a:
     reutrn [x,y]
 ```
 
+## [424. 替换后的最长重复字符](https://leetcode-cn.com/problems/longest-repeating-character-replacement/)
+
+给你一个仅由大写英文字母组成的字符串，你可以将任意位置上的字符替换成另外的字符，总共可最多替换 k 次。在执行上述操作后，找到`包含重复字母的最长子串的长度`。
+
+注意：字符串长度 和 k 不会超过 104。   
+
+> 示例 1：
+>
+>  输入：s = "ABAB", k = 2 输出：4 
+>
+> 解释：用两个'A'替换为两个'B',反之亦然。
+>
+> 
+>
+> 示例 2： 输入：s = "AABABBA", k = 1 输出：4 
+>
+> 解释： 将中间的一个'A'替换为'B',字符串变为 "AABBBBA"。 子串 "BBBB" 有最长重复字母, 答案为 4。
+
+[424代码](424.py)
+
+
+
+`思路`：[双指针](#双指针)
+
+我们可以枚举字符串中的`每一个位置作为右端点`，然后`找到其最远的左端点的位置`，满足该区间内除了出现次数最多的那一类字符之外，剩余的字符（即非最长重复字符）数量不超过k个。
+
+这样我们可以想到使用`双指针`维护这些区间，每次右指针右移，如果区间仍然满足条件，那么左指针不移动，否则左指针至多右移一格，保证区间长度不减小。
+
+当我们右指针移动到尽头，左右指针对应的区间的长度必然对应一个长度最大的符合条件的区间。
+
+
+
+实际代码中，由于字符串中仅包含大写字母，我们可以使用一个`长度为26的数组`维护每一个字符的出现次数。每次区间右移，我们更新右移位置的字符出现的次数，然后尝试用它更新重复字符出现次数的历史最大值，最后我们使用该最大值计算出区间内非最长重复字符的数量，以此判断左指针是否需要右移即可。
+
+也可以使用sum(arr)函数，但速度会比每次循环更新最大值要慢。
+
+```python
+class Solution(object):
+    def characterReplacement(self, s, k):
+        """
+        :type s: str
+        :type k: int
+        :rtype: int
+        """
+        num = [0] * 26
+        n = len(s)
+        left = right = maxn = 0
+        while right < n:
+            num[ord(s[right]) - ord("A")] += 1
+            #每次迭代只有上面的情况加一，所以最大只要比较历史最大和新加一的那个字母数字
+            maxn = max(maxn,num[ord(s[right]) - ord("A")])
+            if (right - left + 1) - maxn > k:
+                num[ord(s[left]) - ord("A")] -= 1
+                left += 1
+            #确保区间长度不会减小，但right会一直向右移动
+            right += 1
+        return right - left
+```
+
+## [643. 子数组最大平均数 I](https://leetcode-cn.com/problems/maximum-average-subarray-i/)
+
+给定 n 个整数，找出平均数最大且长度为 k 的连续子数组，并输出该最大平均数。
+
+> 示例：
+>
+> 输入：[1,12,-5,-6,50,3], k = 4
+> 输出：12.75
+> 解释：最大平均数 (12-5-6+50)/4 = 51/4 = 12.75
+
+**提示**：
+
+* 1 <= k <= n <= 30,000。
+* 所给数据范围 [-10,000，10,000]。
+
+
+
+[643代码](643.py)
+
+
+
+`思路`：[滑动窗口](#滑动窗口)
+
+规定了子数组的长度，所以可以通过`寻找子数组的最大元素和`的方式寻找子数组的最大平均数。元素和最大的子数组对应的平均数也是最大的。将计算nums[0--k-1]作为初始值，每次向右移动，减去nums[i-1]，加上nums[i+k-1]，将该值和历史最大值进行比较，更新最大值。
+
+
+
+**复杂度分析**：
+
+- 时间复杂度：O(n)，其中n是数组nums的长度。遍历数组一次。
+- 空间复杂度：O(1)。
+
 
 
 # Leetcode热题Hot100
 
+这里`不抄题目`，只`分析想法和代码`
 
+## [1. 两数之和](https://leetcode-cn.com/problems/two-sum/)
+
+双重遍历，第二个从i+1开始遍历。
+
+```python
+class Solution(object):
+    def twoSum(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        for i in range(len(nums)-1):
+            for j in range(i+1,len(nums)):
+                if nums[i]+nums[j]==target:
+                    return [i,j]
+```
+
+## [2. 两数相加](https://leetcode-cn.com/problems/add-two-numbers/)
+
+考察利用链表来实现加法。
+
+关键在于如何处理`两个链表长度不相等时`以及`进位加一`。
+
+利用l.val if l else 0，可以将链表长度补为相等，因为空的地方都为0。
+
+利用一个变量flag来记录是否需要进位加一。
+
+建立相同的结点l和tmp，tmp用来形成链表，而l是带头结点的链表的头结点。
+
+```python
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution(object):
+    def addTwoNumbers(self, l1, l2):
+        """
+        :type l1: ListNode
+        :type l2: ListNode
+        :rtype: ListNode
+        """
+        l = tmp = ListNode()
+        flag = 0
+        while l1 or l2 or flag:
+            val = (l1.val if l1 else 0) + (l2.val if l2 else 0) + flag
+            tmp.next = ListNode(val%10)
+            tmp = tmp.next
+            flag = val//10
+            l1 = l1.next if l1 else 0
+            l2 = l2.next if l2 else 0
+        return l.next
+```
+
+## [3. 无重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/)
+
+动态规划问题，f(i)与f(i-1)的关系，如果s[i]不重复那么，就是简单加一，如果重复，需要计算重复数字之间的距离。
+
+我在这里处理的时候，最后结果是cur的最大值，cur的意义是无重复字符的子串长度
+
+```python
+class Solution(object):
+    def lengthOfLongestSubstring(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        tmp = ''
+        ans,cur = 0,0
+        for i in range(len(s)):
+            if s[i] not in tmp:
+                cur += 1
+                tmp += s[i]
+            else:
+                index = tmp.find(s[i])
+                cur -= index
+                tmp = tmp[index+1:] + s[i]
+            if cur > ans:
+                ans = cur
+        return ans
+```
+
+## [4. 寻找两个正序数组的中位数](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/)
+
+[官方解题思路](https://leetcode-cn.com/problems/median-of-two-sorted-arrays/solution/xun-zhao-liang-ge-you-xu-shu-zu-de-zhong-wei-s-114/)
+
+主要思想为`二分法`
+
+转化成**寻找两个有序数组中的第k小的数**
+
+```python
+class Solution(object):
+    def findMedianSortedArrays(self, nums1, nums2):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: float
+        """
+        m,n = len(nums1),len(nums2)
+        if (m + n) & 1 != 0:
+            return self.getkthEle((m + n)//2 + 1,nums1,nums2)
+        else:
+            return (self.getkthEle((m + n)//2,nums1,nums2) + \
+            self.getkthEle((m + n)//2 + 1,nums1,nums2))/2
+
+    def getkthEle(self,k,nums1,nums2):
+        index1,index2 = 0,0
+        m,n = len(nums1),len(nums2)
+        while True:
+            #特殊情况
+            if index1 == m:
+                return nums2[index2 + k - 1]
+            if index2 == n:
+                return nums1[index1 + k - 1]
+            if k == 1:
+                return min(nums1[index1],nums2[index2])
+            #一般情况
+            newindex1 = min(index1 + k//2 - 1,m - 1)
+            newindex2 = min(index2 + k//2 - 1,n - 1)
+            if nums1[newindex1] <= nums2[newindex2]:
+                k -= newindex1 - index1 + 1
+                index1 = newindex1 + 1 
+            else:
+                k -= newindex2 - index2 + 1
+                index2 = newindex2 + 1
+```
+
+## [5. 最长回文子串](https://leetcode-cn.com/problems/longest-palindromic-substring/)
+
+我自己的思路是，最长字串的左端left一定在0-len(s)中，然后利用滑窗k来遍历数组，更新k的情况有加一、加二两种情况。但这种最后思考最终未实现，因为注意点很多，需要考虑扩张问题，而且加一加二两种情况也会互相冲突。所以，思路一定要抓住主要的，有一些想法有道理但实现成本高，情况复杂。
+
+
+
+这题最重要的是`回文中心`的概念，a可以作为中心，aa也可以作为中心，然后向两边扩张，然后遍历就可以了。
+
+* 时间复杂度：O(n^2)，其中 nn 是字符串的长度。长度为1和2的回文中心分别有n和 n-1个，每个回文中心最多会向外扩展 O(n)次。
+* 空间复杂度：O(1)。
+
+```python
+class Solution(object):
+    def longestPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: str
+        """
+        k = 0
+        for i in range(len(s)):
+            left,right = self.expand(s,i,i)
+            if right - left + 1 > k:
+                k = right - left + 1
+                ans = s[left:right + 1]
+            left,right = self.expand(s,i,i + 1)
+            if right - left + 1 > k:
+                k = right - left + 1
+                ans = s[left:right + 1]           
+        return ans 
+
+    def expand(self,s,left,right):
+        while left >= 0 and right < len(s) \
+        and s[left] == s[right]:
+            left -= 1
+            right += 1
+        return left + 1,right - 1
+```
+
+## [6. Z 字形变换](https://leetcode-cn.com/problems/zigzag-conversion/)
+
+最上和最下行只要对2n-2求余排列就行，中间的有两类数，相加为2n-2。
+
+```python
+class Solution(object):
+    def convert(self, s, numRows):
+        """
+        :type s: str
+        :type numRows: int
+        :rtype: str
+        """
+        ans = ''
+        if numRows == 1:
+            return s
+        if numRows == 2:
+            for i in range(0,len(s),2):
+            	ans += s[i]
+            for i in range(1,len(s),2):
+            	ans += s[i]
+            return ans
+        for i in range(0,len(s),2*numRows - 2):
+            ans += s[i]
+        for i in range(1,numRows - 1):
+            j = 2*numRows - 2 - i
+            while i < len(s) or j < len(s):
+                if i < len(s):
+                    ans += s[i]
+                    i += 2*numRows - 2
+                if  j < len(s):
+                    ans += s[j]
+                    j += 2*numRows - 2
+        for i in range(numRows-1,len(s),2*numRows-2):
+            ans += s[i]
+        return ans
+```
+
+## [7. 整数反转](https://leetcode-cn.com/problems/reverse-integer/)
+
+判断是否溢出可以用位移运算符
+
+```python
+class Solution:
+    def reverse(self, x: int) -> int:
+        nums = []
+        if x < 0:
+            flag = 1
+            x = -x
+        else:
+            flag = 0
+        while x > 9:
+            nums.append(x % 10)
+            x = int(x / 10)
+        nums.append(x)
+        ans = 0
+        for i in range(len(nums)):
+            ans += nums[i]*(10**(len(nums)-1-i))
+        if flag == 1:
+            ans = -ans
+        if not -1 <= (ans>>31) <= 0:
+            return 0
+        return ans
+```
+
+清晰一点的解法
+
+```python
+class Solution:
+    def reverse(self, x: int) -> int:
+        y, res = abs(x), 0
+        # 则其数值范围为 [−2^31,  2^31 − 1]
+        boundry = (1<<31) -1 if x>0 else 1<<31
+        while y != 0:
+            res = res*10 +y%10
+            if res > boundry :
+                return 0
+            y //=10
+        return res if x >0 else -res
+```
+
+## [8. 字符串转换整数 (atoi)](https://leetcode-cn.com/problems/string-to-integer-atoi/)
+
+这里有多种方法，下面代码使用的是直接遍历。
+
+但这题涉及到各种边界问题，避免代码臃肿，可以使用`有限状态机`，当满足条件时在各种不同状态下进行处理。
+
+```python
+class Solution:
+    def myAtoi(self, str: str) -> int:
+        i = 0
+        n = len(str)
+        while i < n and str[i]==' ':
+            i = i + 1
+        if n == 0 or i == n:
+            return 0
+        flag = 1
+        if str[i] == '-':
+            flag = -1
+        if str[i] == '+' or str[i] == '-':
+            i = i + 1
+        INT_MAX=2**31-1
+        INT_MIN=-2**31
+        ans = 0
+        while i < n and '0'<=str[i]<='9':
+            ans = ans*10 + int(str[i])
+            i += 1
+            if(ans-1>INT_MAX):
+                break
+        ans = ans*flag
+        if ans > INT_MAX:
+            return INT_MAX
+        return INT_MIN if ans<INT_MIN else ans
+```
+
+## [9. 回文数](https://leetcode-cn.com/problems/palindrome-number/)
+
+将int转换为字符串就非常简单了。
+
+```python
+class Solution:
+    def isPalindrome(self, x: int) -> bool:
+        s = str(x)
+        for i in range(len(s)//2):
+            if s[i] != s[-i-1]:
+                return False
+        return True
+```
 
 
 
@@ -822,3 +1219,6 @@ pre = pre[1:][1:]
 pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 ```
 
+## 双指针
+
+## 滑动窗口
