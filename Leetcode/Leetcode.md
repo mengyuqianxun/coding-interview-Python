@@ -629,6 +629,59 @@ class Solution(object):
 - 时间复杂度：O(n)，其中n是数组nums的长度。遍历数组一次。
 - 空间复杂度：O(1)。
 
+## [1208. 尽可能使字符串相等](https://leetcode-cn.com/problems/get-equal-substrings-within-budget/)
+
+给你两个长度相同的字符串，s 和 t。
+
+将 s 中的第 i 个字符变到 t 中的第 i 个字符需要 |s[i] - t[i]| 的开销（开销可能为 0），也就是两个字符的 ASCII 码值的差的绝对值。
+
+用于变更字符串的最大预算是 maxCost。在转化字符串时，总开销应当小于等于该预算，这也意味着字符串的转化可能是不完全的。
+
+如果你可以将 s 的子字符串转化为它在 t 中对应的子字符串，则返回可以转化的最大长度。
+
+如果 s 中没有子字符串可以转化成 t 中对应的子字符串，则返回 0。
+
+> 示例 1：
+>
+> 输入：s = "abcd", t = "bcdf", cost = 3
+> 输出：3
+> 解释：s 中的 "abc" 可以变为 "bcd"。开销为 3，所以最大长度为 3。
+>
+> 
+>
+> 示例 2：
+>
+> 输入：s = "abcd", t = "cdef", cost = 3
+> 输出：1
+> 解释：s 中的任一字符要想变成 t 中对应的字符，其开销都是 2。因此，最大长度为 1。
+>
+> 
+>
+> 示例 3：
+>
+> 输入：s = "abcd", t = "acde", cost = 0
+> 输出：1
+> 解释：你无法作出任何改动，所以最大长度为 1。
+
+**提示**：
+
+* 1 <= s.length, t.length <= 10^5
+* 0 <= maxCost <= 10^6
+* s 和 t 都只含小写英文字母。
+
+[1208代码](1208.py)
+
+
+
+`思路`：[滑动窗口](#滑动窗口)
+
+ 
+
+**复杂度分析**：
+
+- 时间复杂度：O(n)。
+- 空间复杂度：O(n)。
+
 
 
 # Leetcode热题Hot100
@@ -929,6 +982,128 @@ class Solution:
         return True
 ```
 
+## [11. 盛最多水的容器](https://leetcode-cn.com/problems/container-with-most-water/)
+
+双指针
+
+分别处于头尾向中间前进
+
+可以证明移动数值小的那个指针，可以保持最大值。
+
+```python
+class Solution:
+    def maxArea(self, height: List[int]) -> int:
+        left,right = 0,len(height) - 1
+        ans = 0
+        while left < right:
+            if min(height[left],height[right])*(right - left) > ans:
+                ans = min(height[left],height[right])*(right - left)
+            if height[left] <= height[right]:
+                left += 1
+            else:
+                right -= 1
+        return ans
+```
+
+## [12. 整数转罗马数字](https://leetcode-cn.com/problems/integer-to-roman/)
+
+将给定的整数转换为罗马数字需要找到上述 13 个符号的序列，这些符号的对应值加起来就是整数。
+
+为了表示一个给定的整数，我们寻找适合它的最大符号。我们减去它，然后寻找适合余数的最大符号，依此类推，直到余数为0。我们取出的每个符号都附加到输出的罗马数字字符串上。
+
+```python
+class Solution:
+    def intToRoman(self, num: int) -> str:
+        digits = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+        roman_digits = []
+        for value, symbol in digits:
+            if num == 0: 
+                break
+            count, num = divmod(num, value)
+            roman_digits.append(symbol * count)
+        return "".join(roman_digits)
+```
+
+## [13. 罗马数字转整数](https://leetcode-cn.com/problems/roman-to-integer/)
+
+如果出现当前位比前一位要小，那么就减去两倍前一位的数。
+
+```python
+class Solution:
+    def romanToInt(self, s: str) -> int:
+        dic = {'I':1,'V':5,'X':10,'L':50,'C':100,'D':500,'M':1000}
+        ans = 0
+        for i in range(len(s)):
+            ans += dic[s[i]]
+            if i > 0 and dic[s[i - 1]] < dic[s[i]]:
+                ans -= 2*dic[s[i - 1]]
+        return ans 
+```
+
+## [14. 最长公共前缀](https://leetcode-cn.com/problems/longest-common-prefix/)
+
+纵向比较
+
+```python
+class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        ans = ''
+        if strs == []:
+            return ans
+        for i in range(len(strs[0])):
+            flag = 1
+            for j in range(len(strs)):
+                if i == len(strs[j]) or strs[0][i] != strs[j][i]:
+                    flag = 0
+                    break
+            if flag == 1:
+                ans += strs[0][i]
+            else:
+                break
+        return ans
+```
+
+zip *方法
+
+```python
+class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        str = ''
+        for i in zip(*strs):
+            if len(set(i)) == 1:
+                str += i[0]
+            else:
+                break
+        return str
+
+```
+
+## [15. 三数之和](https://leetcode-cn.com/problems/3sum/)
+
+优化三重遍历
+
+```python
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        n = len(nums)
+        nums.sort()
+        ans = []
+        for i in range(n):
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+            k = n - 1
+            for j in range(i + 1,n):
+                if j > i + 1 and nums[j] == nums[j - 1]:
+                    continue
+                while j < k and nums[j] + nums[k] + nums[i] > 0:
+                    k -= 1
+                if j == k:
+                    break
+                if nums[j] + nums[k] + nums[i] == 0:
+                    ans.append([nums[i],nums[j],nums[k]])
+        return ans 
+```
+
 
 
 
@@ -1222,3 +1397,32 @@ pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 ## 双指针
 
 ## 滑动窗口
+
+### 可变窗口
+
+```python
+        start,end = 0,0
+        ans = 0
+
+        for end in 可迭代集合
+            更新窗口内信息
+            while 窗口内不符合题意
+                扩展或者收缩窗口
+                start += 1
+            更新答案
+        返回 ans
+```
+
+### 固定窗口
+
+```python
+        start,end = 0,0
+        ans = 0
+
+        for start in 可迭代集合
+        	更新窗口内信息（前指针进窗口，后指针出窗口）
+       		end += 1
+        	更新答案
+        返回 ans
+```
+
