@@ -682,6 +682,76 @@ class Solution(object):
 - 时间复杂度：O(n)。
 - 空间复杂度：O(n)。
 
+## [1423. 可获得的最大点数](https://leetcode-cn.com/problems/maximum-points-you-can-obtain-from-cards/)
+
+几张卡牌排成一行，每张卡牌都有一个对应的点数。点数由整数数组 cardPoints 给出。
+
+`每次行动，你可以从行的开头或者末尾拿一张卡牌，最终你必须正好拿 k 张卡牌`。
+
+你的点数就是你拿到手中的所有卡牌的点数之和。
+
+给你一个整数数组 cardPoints 和整数 k，请你返回`可以获得的最大点数`。
+
+> 示例 1：
+>
+> 输入：cardPoints = [1,2,3,4,5,6,1], k = 3
+> 输出：12
+> 解释：第一次行动，不管拿哪张牌，你的点数总是 1 。但是，先拿最右边的卡牌将会最大化你的可获得点数。最优策略是拿右边的三张牌，最终点数为 1 + 6 + 5 = 12 。
+>
+> 
+>
+> 示例 2：
+>
+> 输入：cardPoints = [2,2,2], k = 2
+> 输出：4
+> 解释：无论你拿起哪两张卡牌，可获得的点数总是 4 。
+>
+> 
+>
+> 示例 3：
+>
+> 输入：cardPoints = [9,7,7,9,7,7,9], k = 7
+> 输出：55
+> 解释：你必须拿起所有卡牌，可以获得的点数为所有卡牌的点数之和。
+>
+> 
+>
+> 示例 4：
+>
+> 输入：cardPoints = [1,1000,1], k = 1
+> 输出：1
+> 解释：你无法拿到中间那张卡牌，所以可以获得的最大点数为 1 。 
+>
+> 
+>
+> 示例 5：
+>
+> 输入：cardPoints = [1,79,80,1,1,1,200,1], k = 3
+> 输出：202
+
+**提示**：
+
+* 1 <= cardPoints.length <= 10^5
+* 1 <= cardPoints[i] <= 10^4
+* 1 <= k <= cardPoints.length
+
+[1423代码](1423.py)
+
+
+
+`思路`：
+
+题目可以转化为n-k的`固定窗口`大小，找到`窗口内之和最小`。那么，用[固定窗口](#固定窗口)模板就可以很快做出来了。
+
+
+
+**复杂度分析**
+
+* 时间复杂度：O(n)，其中 nn 是数组 cardPoints 的长度。
+* 空间复杂度：O(1)。
+
+
+
 
 
 # Leetcode热题Hot100
@@ -1104,6 +1174,185 @@ class Solution:
         return ans 
 ```
 
+## [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+
+涉及到所有组合，可以考虑用[回溯法](#回溯法)。
+
+```python
+class Solution:
+    def letterCombinations(self, digits: str) -> List[str]:
+        if not digits:
+            return list()
+        phoneMap = {"2": "abc","3": "def","4": "ghi","5": "jkl",\
+        "6": "mno","7": "pqrs","8": "tuv","9": "wxyz"}
+        def backtrack(index):
+            if index == len(digits):
+                combinations.append("".join(combination))
+            else:
+                digit = digits[index]
+                for letter in phoneMap[digit]:
+                    combination.append(letter)
+                    backtrack(index + 1)
+                    combination.pop()
+
+        combination = list()
+        combinations = list()
+        backtrack(0)
+        return combinations
+```
+
+## [18. 四数之和](https://leetcode-cn.com/problems/4sum/)
+
+和三数之和一样
+
+```python
+class Solution:
+    def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
+        quadruplets = list()
+        if not nums or len(nums) < 4:
+            return quadruplets
+        
+        nums.sort()
+        length = len(nums)
+        for i in range(length - 3):
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+            if nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] > target:
+                break
+            if nums[i] + nums[length - 3] + nums[length - 2] + nums[length - 1] < target:
+                continue
+            for j in range(i + 1, length - 2):
+                if j > i + 1 and nums[j] == nums[j - 1]:
+                    continue
+                if nums[i] + nums[j] + nums[j + 1] + nums[j + 2] > target:
+                    break
+                if nums[i] + nums[j] + nums[length - 2] + nums[length - 1] < target:
+                    continue
+                left, right = j + 1, length - 1
+                while left < right:
+                    total = nums[i] + nums[j] + nums[left] + nums[right]
+                    if total == target:
+                        quadruplets.append([nums[i], nums[j], nums[left], nums[right]])
+                        while left < right and nums[left] == nums[left + 1]:
+                            left += 1
+                        left += 1
+                        while left < right and nums[right] == nums[right - 1]:
+                            right -= 1
+                        right -= 1
+                    elif total < target:
+                        left += 1
+                    else:
+                        right -= 1
+        
+        return quadruplets
+```
+
+## [19. 删除链表的倒数第 N 个结点](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
+
+方法一：先求出链表长度，在删除倒数第N个结点
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        first = ListNode(0,head)
+        tmp = first
+        length = 0
+        while tmp.next:
+            tmp = tmp.next
+            length += 1
+        tmp = first
+        for _ in range(length - n):
+            tmp = tmp.next
+        tmp.next = tmp.next.next
+        return first.next
+```
+
+方法二：双指针，慢指针在快指针运动n时开始移动
+
+```python
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        first = ListNode(0,head)
+        fast,slow = first,first
+        for _ in range(n + 1):
+            fast = fast.next
+        while fast:
+            fast = fast.next
+            slow = slow.next
+        slow.next = slow.next.next
+        return first.next
+```
+
+方法三：栈
+
+## [20. 有效的括号](https://leetcode-cn.com/problems/valid-parentheses/)
+
+用数组来模拟`栈`
+
+```python
+class Solution:
+    def isValid(self, s: str) -> bool:
+        arrs = []
+        left = ['(','[','{']
+        right = [')',']','}']
+        for i in range(len(s)):
+            if len(arrs) > 0 and s[i] in right and arrs[-1] in left \
+            and left.index(arrs[-1]) == right.index(s[i]):
+                arrs.pop()
+            else:
+                arrs.append(s[i])
+        return len(arrs) == 0
+
+    
+class Solution:
+    def isValid(self, s: str) -> bool:
+        arrs = []
+        pairs = {')':'(',']':'[','}':'{'}
+        for i in range(len(s)):
+            if len(arrs) > 0 and s[i] in pairs and pairs[s[i]] == arrs[-1]:
+                arrs.pop()
+            else:
+                arrs.append(s[i])
+        return len(arrs) == 0
+```
+
+## [21. 合并两个有序链表](https://leetcode-cn.com/problems/merge-two-sorted-lists/)
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+        first = ListNode()
+        tmp = first
+        while l1 and l2:
+            if l1.val <= l2.val:
+                tmp.next = l1
+                tmp = tmp.next
+                l1 = l1.next
+            else:
+                tmp.next = l2
+                tmp = tmp.next
+                l2 = l2.next
+        if l1:
+            tmp.next = l1
+        elif l2:
+            tmp.next = l2
+        return first.next
+```
+
+## [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+
+
+
 
 
 
@@ -1132,6 +1381,252 @@ class Solution:
 
 
 # 相关知识点
+
+## 前缀和
+
+什么是`前缀和`？
+
+前缀和是一个数组的某项下标之前(包括此项元素)的所有数组元素的和
+
+|            |                     定义式                      |                      递推式                       |
+| :--------: | :---------------------------------------------: | :-----------------------------------------------: |
+| 一维前缀和 |           $b[i]=\sum_{j=0}^{i} a[j]$            |                $b[i]=b[i-1]+a[i]$                 |
+| 二维前缀和 | $b[x][y]=\sum_{i=0}^{x} \sum_{j=0}^{y} a[i][j]$ | $b[x][y]=b[x-1][y]+b[x][y-1]-b[x-1][y-1]+a[x][y]$ |
+
+### 一维前缀和
+
+根据上述表达式我们可以以`O(1)`求出`区间[i,j]的区间和 `
+
+```python
+# 建立	pre[i]是i及之前nums之和
+pre = [0]
+for num in nums:
+    pre.append(pre[-1] + num)
+pre = pre[1:]
+#  使用，等价于 nums[i] + nums[i + 1] + ... + nums[j]
+pre[j] - pre[i-1] 
+```
+
+### 二维前缀和
+
+```python
+m,n = len(matrix), len(matrix[0])
+# 建立
+pre = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
+
+for i in range(1, m+1):
+    for j in range(1, n+1):
+        pre[i][j] = pre[i-1][j]+ pre[i][j-1] - pre[i-1][j-1] + matrix[i-1][j-1]
+pre = pre[1:][1:]
+# 使用，等价于以(x1,y1)为矩阵左上角以(x2,y2)为矩阵右下角的所有格子的和
+# x,y从0起始
+pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
+```
+
+## 双指针
+
+## 滑动窗口
+
+### 可变窗口
+
+```python
+        start,end = 0,0
+        ans = 0
+
+        for end in 可迭代集合
+            更新窗口内信息
+            while 窗口内不符合题意
+                扩展或者收缩窗口
+                start += 1
+            更新答案
+        返回 ans
+```
+
+### 固定窗口
+
+```python
+        start,end = 0,0
+        ans = 0
+
+        for start in 可迭代集合
+        	更新窗口内信息（前指针进窗口，后指针出窗口）
+       		end += 1
+        	更新答案
+        返回 ans
+```
+
+**推荐**：i从winsize开始到n结束
+
+```python
+        n = len(arrs)
+        # 滑动窗口大小为 k
+        winsize = k
+        # 选前 k 个作为初始值
+        s = sum(arrs[:winsize])
+        minSum = s
+        for i in range(winsize, n):
+            # 滑动窗口每向右移动一格，增加从右侧进入窗口的元素值，并减少从左侧离开窗口的元素值
+            s += arrs[i] - arrs[i - winsize]
+            minSum = min(minSum, s)
+        return minSum
+```
+
+## 二分法
+
+### 查找有序数组中的单一元素
+
+```python
+def binarySearch(nums, target):
+    # 左右都闭合的区间 [l, r]
+    l, r = 0, len(nums) - 1
+    while l <= r:
+        mid = (left + right) >> 1
+        if nums[mid] == target:
+            return mid
+        # 搜索区间变为 [mid+1, right]
+        if nums[mid] < target:
+            l = mid + 1
+        # 搜索区间变为 [left, mid - 1]
+        if nums[mid] > target:
+            r = mid - 1
+    return -1
+```
+
+## 树相关
+
+### 一个中心：树的遍历
+
+一个中心指的是**树的遍历**。整个树的专题只有一个中心点，那就是树的遍历。
+
+不管是什么题目，核心就是树的遍历，这是一切的基础，不会树的遍历后面讲的都是白搭。
+
+其实树的遍历的本质就是去把树里边儿的每个元素都访问一遍。必须得从根节点开始访问，然后根据子节点指针访问子节点，但是子节点有多个（二叉树最多两个）方向，所以又有了先访问哪个的问题，这造成了不同的遍历方式。
+
+> 左右子节点的访问顺序通常不重要，极个别情况下会有一些微妙区别。比如说我们想要访问一棵树的最左下角节点，那么顺序就会产生影响。
+
+而遍历不是目的，遍历是为了更好地做处理，这里的处理包括搜索，修改树等。树虽然只能从根开始访问，但是我们可以**选择**在访问完毕回来的时候做处理，还是在访问回来之前做处理，这两种不同的方式就是**后序遍历**和**先序遍历**。
+
+而树的遍历又可以分为两个基本类型，分别是`深度优先遍历`和`广度优先遍历`。这两种遍历方式并不是树特有的，但却伴随树的所有题目。值得注意的是，这两种遍历方式只是一种逻辑而已，因此理论可以应用于任何数据结构。
+
+#### 树的遍历递归写法
+
+```python
+class BiTNode:
+    def __init__(self,data= 0):
+        self.data = data
+        self.lchild = None
+        self.rchild = None
+
+#前序遍历打印二叉树的节点内容
+def printTreePreOrder(root):
+    if root ==  None:
+        return None
+    print(root.data,end = ' ')
+    if root.lchild != None:
+        printTreePreOrder(root.lchild)
+    if root.rchild != None:
+    	printTreePreOrder(root.rchild)
+
+#中序遍历打印二叉树的节点内容
+def printTreeMidOrder(root):
+    if root ==  None:
+        return None
+    if root.lchild != None:
+        printTreeMidOrder(root.lchild)
+    print(root.data,end = ' ')
+    if root.rchild != None:
+    	printTreeMidOrder(root.rchild)
+
+#后序遍历打印二叉树的节点内容
+def printTreePostOrder(root):
+    if root ==  None:
+        return None
+    if root.lchild != None:
+        printTreePostOrder(root.lchild)
+    if root.rchild != None:
+    	printTreePostOrder(root.rchild)
+    print(root.data,end = ' ')
+```
+
+#### 树的遍历迭代写法
+
+统一三种树的遍历方式的方法叫做`双色标记法`。平时练习大可**只用递归**。然后面试的时候，真的要求用迭代或者是对性能有特别要求的那种题目，套用这种方法。
+
+我们知道垃圾回收算法中，有一种算法叫三色标记法。 即：
+
+- 用白色表示尚未访问
+- 灰色表示尚未完全访问子节点
+- 黑色表示子节点全部访问
+
+那么我们可以模仿其思想，使用双色标记法来统一三种遍历。
+
+其核心思想如下：
+
+- 使用颜色标记节点的状态，新节点为白色，已访问的节点为灰色。
+- 如果遇到的节点为白色，则将其标记为灰色，然后将其右子节点、自身、左子节点依次入栈。
+- 如果遇到的节点为灰色，则将节点的值输出。
+
+使用这种方法实现的中序遍历如下：
+
+```python
+class Solution:
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
+        WHITE, GRAY = 0, 1
+        res = []
+        stack = [(WHITE, root)]
+        while stack:
+            color, node = stack.pop()
+            if node is None: continue
+            if color == WHITE:
+                stack.append((WHITE, node.right))	#左
+                stack.append((GRAY, node))			#根
+                stack.append((WHITE, node.left))	#右
+            else:
+                res.append(node.val)
+        return res
+```
+
+可以看出，实现上 WHITE 就表示的是递归中的第一次进入过程，Gray 则表示递归中的从叶子节点返回的过程。 因此这种迭代的写法更接近递归写法的本质。
+
+如要**实现前序、后序遍历，也只需要调整左右子节点的入栈顺序即可，其他部分是无需做任何变化**。
+
+### 两个基本点
+
+上面提到了树的遍历有两种基本方式，分别是**深度优先遍历（以下简称 DFS）和广度优先遍历（以下简称 BFS），这就是两个基本点**。这两种遍历方式下面又会细分几种方式。比如 **DFS 细分为前中后序遍历， BFS 细分为带层的和不带层的**。
+
+**DFS 适合做一些暴力枚举的题目，DFS 如果借助函数调用栈，则可以轻松地使用递归来实现。**
+
+
+
+
+
+## 回溯
+
+>  回溯算法用于寻找`所有的可行解`，如果发现一个解不可行，则会舍弃不可行的解。
+
+当题目中出现 `“所有组合” `等类似字眼时，我们第一感觉就要想到用回溯。
+
+下面的模板是，遍历digits里每个digit对应的字典里的所有letter
+
+{'1':'abc,'2':'de'}，则遍历['ad','ae'','bd','de','cd','ce']
+
+```python
+    dic = {}
+    def backtrack(index):
+        if index == len(digits):
+            combs.append("".join(comb))
+        else:
+            digit = digits[index]
+            for letter in dic[digit]:
+                comb.append(letter)
+                backtrack(index + 1)
+                comb.pop()
+    comb = list()
+    combs = list()
+    backtrack(0)
+```
+
+> 需要对`树的 DFS `熟悉，因为`回溯的问题`基本都可以抽象成`树形结构问题`
 
 ## 并查集DisjointSets
 
@@ -1352,77 +1847,3 @@ x    y
 ```
 
 就不难看出应该如何更新。
-
-## 前缀和
-
-什么是`前缀和`？
-
-前缀和是一个数组的某项下标之前(包括此项元素)的所有数组元素的和
-
-|            |                     定义式                      |                      递推式                       |
-| :--------: | :---------------------------------------------: | :-----------------------------------------------: |
-| 一维前缀和 |           $b[i]=\sum_{j=0}^{i} a[j]$            |                $b[i]=b[i-1]+a[i]$                 |
-| 二维前缀和 | $b[x][y]=\sum_{i=0}^{x} \sum_{j=0}^{y} a[i][j]$ | $b[x][y]=b[x-1][y]+b[x][y-1]-b[x-1][y-1]+a[x][y]$ |
-
-### 一维前缀和
-
-根据上述表达式我们可以以`O(1)`求出`区间[i,j]的区间和 `
-
-```python
-# 建立	pre[i]是i及之前nums之和
-pre = [0]
-for num in nums:
-    pre.append(pre[-1] + num)
-pre = pre[1:]
-#  使用，等价于 nums[i] + nums[i + 1] + ... + nums[j]
-pre[j] - pre[i-1] 
-```
-
-### 二维前缀和
-
-```python
-m,n = len(matrix), len(matrix[0])
-# 建立
-pre = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
-
-for i in range(1, m+1):
-    for j in range(1, n+1):
-        pre[i][j] = pre[i-1][j]+ pre[i][j-1] - pre[i-1][j-1] + matrix[i-1][j-1]
-pre = pre[1:][1:]
-# 使用，等价于以(x1,y1)为矩阵左上角以(x2,y2)为矩阵右下角的所有格子的和
-# x,y从0起始
-pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
-```
-
-## 双指针
-
-## 滑动窗口
-
-### 可变窗口
-
-```python
-        start,end = 0,0
-        ans = 0
-
-        for end in 可迭代集合
-            更新窗口内信息
-            while 窗口内不符合题意
-                扩展或者收缩窗口
-                start += 1
-            更新答案
-        返回 ans
-```
-
-### 固定窗口
-
-```python
-        start,end = 0,0
-        ans = 0
-
-        for start in 可迭代集合
-        	更新窗口内信息（前指针进窗口，后指针出窗口）
-       		end += 1
-        	更新答案
-        返回 ans
-```
-

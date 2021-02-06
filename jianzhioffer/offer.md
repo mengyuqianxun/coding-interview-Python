@@ -1,5 +1,3 @@
-[toc]
-
 # 一、面试所需
 
 ## 面试素质
@@ -1265,7 +1263,7 @@ if __name__=="__main__":
 
 ```python
 class BiTNode:
-    def __init__(self,data):
+    def __init__(self,data = 0):
         self.data = data
         self.lchild = None
         self.rchild = None
