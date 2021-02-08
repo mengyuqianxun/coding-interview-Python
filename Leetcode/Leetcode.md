@@ -4,6 +4,17 @@
 
 `代码链接在题目描述后，也可以通过题号来寻找`
 
+编译都是用的`python3或python`
+
+本地编译python3时，需要如下操作
+
+```python
+from typing import List
+
+class Solution:
+	def searchRange(self, nums: List[int], target: int) -> List[int]:
+```
+
 ## [959 由斜杠划分区域](https://leetcode-cn.com/problems/regions-cut-by-slashes/)
 
 在由 1 x 1 方格组成的 N x N 网格 grid 中，每个 1 x 1 方块由 /、\ 或空格构成。这些字符会将方块划分为一些共边的区域。（请注意，反斜杠字符是转义的，因此 \ 用 "\\" 表示）。返回区域的数目。
@@ -750,7 +761,53 @@ class Solution(object):
 * 时间复杂度：O(n)，其中 nn 是数组 cardPoints 的长度。
 * 空间复杂度：O(1)。
 
+## [978. 最长湍流子数组](https://leetcode-cn.com/problems/longest-turbulent-subarray/)
 
+当A的子数组`A[i], A[i+1], ..., A[j]`满足下列条件时，我们称其为湍流子数组：
+
+* 若`i <= k < j`，当 k 为奇数时，`A[k] >A[k+1]`，且当 k 为偶数时，`A[k] < A[k+1]`；
+* 或 若`i <= k < j`，当 k 为偶数时，`A[k] > A[k+1]`，且当 k 为奇数时，`A[k] < A[k+1]`。
+
+也就是说，如果**比较符号在子数组中的每个相邻元素对之间翻转**，则该子数组是湍流子数组。
+
+返回 A 的最大湍流子数组的长度。
+
+ 
+
+> 示例 1：
+>
+> 输入：[9,4,2,10,7,8,8,1,9]
+> 输出：5
+> 解释：(A[1] > A[2] < A[3] > A[4] < A[5])
+>
+> 
+>
+> 示例 2：
+>
+> 输入：[4,8,12,16]
+> 输出：2
+>
+> 
+>
+> 示例 3：
+>
+> 输入：[100]
+> 输出：1
+
+**提示**：
+
+* 1 <= A.length <= 40000
+* 0 <= A[i] <= 10^9
+
+[978代码](978.py)
+
+
+
+`思路`：
+
+可以想到符号变化，就是(arr[i]-[arri-1])(arr[i-1]-arr[i-2])<0。
+
+特别要注意的是相减为0的情况。
 
 
 
@@ -1351,9 +1408,325 @@ class Solution:
 
 ## [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 
+回溯法，这里是[回溯法-有条件限制的所有组合](#有条件限制的所有组合)
 
+```python
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        ans = []
+        def backtrack(S, left, right):
+            if len(S) == 2 * n:
+                ans.append(''.join(S))
+                return
+            if left < n:
+                S.append('(')
+                backtrack(S, left+1, right)
+                S.pop()
+            if right < left:
+                S.append(')')
+                backtrack(S, left, right+1)
+                S.pop()
 
+        backtrack([], 0, 0)
+        return ans
+```
 
+## [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)
+
+先完成合并2个升序链表，然后`顺序合并`，直到合为一个。
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        def merge2Lists(l1,l2):
+            first = ListNode()
+            tmp = first
+            while l1 and l2:
+                if l1.val <= l2.val:
+                    tmp.next = l1
+                    tmp = tmp.next
+                    l1 = l1.next
+                else:
+                    tmp.next = l2
+                    tmp = tmp.next
+                    l2 = l2.next
+            if l1:
+                tmp.next = l1
+            elif l2:
+                tmp.next = l2
+            return first.next
+
+        if lists == [] or lists == [[]]:
+            return None
+        ans = lists[0]
+        for i in range(1,len(lists)):
+            ans = merge2Lists(ans,lists[i])
+        return ans
+```
+
+## [31. 下一个排列](https://leetcode-cn.com/problems/next-permutation/)
+
+注意到下一个排列总是比当前排列要大，除非该排列已经是最大的排列。我们希望找到一种方法，能够找到一个大于当前序列的新序列，且变大的幅度尽可能小。具体地：
+
+* 我们需要将一个左边的「较小数」与一个右边的「较大数」交换，以能够让当前排列变大，从而得到下一个排列。
+* 同时我们要让这个「较小数」尽量靠右，而「较大数」尽可能小。当交换完成后，「较大数」右边的数需要按照升序重新排列。这样可以在保证新排列大于原来排列的情况下，使变大的幅度尽可能小。
+
+具体算法：
+
+* 首先从后向前查找第一个顺序对 (i,i+1)，满足 a[i] < a[i+1]。这样「较小数」即为 a[i]。此时 [i+1,n)必然是下降序列。
+* 如果找到了顺序对，那么在区间 [i+1,n)中从后向前查找第一个元素 jj 满足 a[i] < a[j]。这样「较大数」即为 a[j]。
+* 交换 a[i]与 a[j]，此时可以证明区间 [i+1,n) 必为降序。我们可以直接使用双指针反转区间 [i+1,n)使其变为升序，而无需对该区间进行排序。
+
+```python
+class Solution:
+    def nextPermutation(self, nums: List[int]) -> None:
+        i = len(nums) - 2
+        while i >= 0 and nums[i] >= nums[i + 1]:
+            i -= 1
+        if i >= 0:
+            j = len(nums) - 1
+            while j >= 0 and nums[i] >= nums[j]:
+                j -= 1
+            nums[i], nums[j] = nums[j], nums[i]
+        
+        left, right = i + 1, len(nums) - 1
+        while left < right:
+            nums[left], nums[right] = nums[right], nums[left]
+            left += 1
+            right -= 1
+```
+
+## [32. 最长有效括号](https://leetcode-cn.com/problems/longest-valid-parentheses/)
+
+[解法解析](https://leetcode-cn.com/problems/longest-valid-parentheses/solution/zui-chang-you-xiao-gua-hao-by-leetcode-solution/)
+
+`动态规划`
+
+```python
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        n = len(s)
+        if n==0:return 0
+        dp = [0]*n
+        for i in range(len(s)):
+            # i-dp[i-1]-1是与当前)对称的位置
+            if s[i]==')' and i-dp[i-1]-1>=0 and s[i-dp[i-1]-1]=='(':
+               dp[i]=dp[i-1]+dp[i-dp[i-1]-2]+2
+        return max(dp)  
+```
+
+`栈`
+
+```python
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        stack = [-1]
+        length = 0
+        max_length = 0
+        for i in range(len(s)):
+            if s[i] == '(':
+                stack.append(i)
+            else:
+                stack.pop()
+                if stack == []:
+                    stack.append(i)
+                else:
+                    length = i-stack[-1]
+                    max_length = max(max_length,length)
+        return max_length
+```
+
+`正向逆向结合`
+
+计算左右括号的数量，如果右括号数量多，就都清0；
+
+但出现)()这种情况，就没法处理，处理办法是从右边向左做相似遍历。
+
+```python
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        n,left,right,maxlen = len(s),0,0,0
+        for i in range(n):
+            if s[i] == '(':
+                left += 1
+            else:
+                right += 1
+            if left == right:
+                maxlen = max(maxlen,2*right)
+            if left < right:
+                left = right = 0
+        left = right = 0
+        for i in range(n-1,-1,-1):
+            if s[i] == ')':
+                right += 1
+            else:
+                left += 1
+            if left == right:
+                maxlen = max(maxlen,2*left)
+            if left > right:
+                left = right = 0
+        return maxlen
+```
+
+## [33. 搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
+
+二分法
+
+```python
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        if not nums:
+            return -1
+        l, r = 0, len(nums) - 1
+        while l <= r:
+            mid = (l + r) // 2
+            if nums[mid] == target:
+                return mid
+            if nums[0] <= nums[mid]:
+                if nums[0] <= target < nums[mid]:
+                    r = mid - 1
+                else:
+                    l = mid + 1
+            else:
+                if nums[mid] < target <= nums[len(nums) - 1]:
+                    l = mid + 1
+                else:
+                    r = mid - 1
+        return -1
+```
+
+## [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode-cn.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+二分法中查找排序数组的第一个和最后一个位置
+
+```python
+class Solution:
+	def searchRange(self, nums: List[int], target: int) -> List[int]:
+		if len(nums) == 0:
+			return [-1, -1]
+		first_position = self.find_first_position(nums, target)
+		if first_position == -1:
+			return [-1, -1]
+		last_position = self.find_last_position(nums, target)
+		return [first_position, last_position]
+
+	def find_first_position(self, nums, target):
+		l,r = 0,len(nums)-1
+		while l < r:
+			mid = (l + r) // 2
+			if nums[mid] < target:
+				l = mid + 1
+			elif nums[mid] > target:
+				r = mid -1
+			else:
+				r = mid
+		if nums[l] == target:
+			return l
+		else:
+			return -1
+
+	def find_last_position(self, nums, target):
+		l,r = 0,len(nums)-1
+		while l < r:
+			mid = (l + r + 1) // 2
+			if nums[mid] > target:
+				r = mid - 1
+			elif nums[mid] < target:
+				l = mid + 1
+			else:
+				l = mid
+		if nums[r] == target:
+			return r
+		else:
+			return -1
+```
+
+## [39. 组合总和](https://leetcode-cn.com/problems/combination-sum/)
+
+方法一：
+
+搜索回溯，但这里没有进行剪枝。
+
+罗列所有可能，在加和超过target或者取数超过数组时终止。
+
+这里如果ans.append(tmp[:])，不使用tmp[:]，而使用tmp，会得到[]。
+
+```python
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        ans = []
+        tmp = []
+        def backtrack(i, add):
+            if i >= len(candidates) or add >= target:
+                if add == target:
+                    ans.append(tmp[:])
+                return
+            tmp.append(candidates[i])
+            backtrack(i, add + candidates[i]) 
+            tmp.pop()
+            backtrack(i + 1, add)
+        backtrack(0, 0)
+        return ans 
+```
+
+方法二：
+
+还是搜索回溯，但做的是减法
+
+```python
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+
+        def dfs(candidates, begin, size, path, res, target):
+            if target == 0:
+                res.append(path)
+                return
+
+            for index in range(begin, size):
+                residue = target - candidates[index]
+                if residue < 0:
+                    break
+                dfs(candidates, index, size, path + [candidates[index]], res, residue)
+
+        size = len(candidates)
+        if size == 0:
+            return []
+        candidates.sort()
+        path = []
+        res = []
+        dfs(candidates, 0, size, path, res, target)
+        return res
+```
+
+## [46. 全排列](https://leetcode-cn.com/problems/permutations/)
+
+可以用标记数组来控制数字不被重复取，但这里使用的是动态维护数组，将已经取过的数和未取得数字交换。
+
+```python
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        def backtrack(first = 0):
+            # 所有数都填完了
+            if first == n:  
+                res.append(nums[:])
+            for i in range(first, n):
+                # 动态维护数组
+                nums[first], nums[i] = nums[i], nums[first]
+                # 继续递归填下一个数
+                backtrack(first + 1)
+                # 撤销操作
+                nums[first], nums[i] = nums[i], nums[first]
+        
+        n = len(nums)
+        res = []
+        backtrack()
+        return res
+```
 
 
 
@@ -1492,6 +1865,48 @@ def binarySearch(nums, target):
     return -1
 ```
 
+### 查找有序数组最左边的满足条件的值的索引
+
+```python
+def find_first_position(nums, target):
+	l,r = 0,len(nums)-1
+	while l < r:
+		mid = (l + r) // 2
+		if nums[mid] < target:
+			l = mid + 1
+		elif nums[mid] > target:
+			r = mid -1
+		else:
+			r = mid
+	if nums[l] == target:
+		return l
+	else:
+		return -1
+```
+
+### 查找有序数组最右边的满足条件的值的索引
+
+```python
+def find_last_position(nums, target):
+	l,r = 0,len(nums)-1
+	while l < r:
+		mid = (l + r + 1) // 2
+		if nums[mid] > target:
+			r = mid - 1
+		elif nums[mid] < target:
+			l = mid + 1
+		else:
+			l = mid
+	if nums[r] == target:
+		return r
+	else:
+		return -1
+```
+
+
+
+
+
 ## 树相关
 
 ### 一个中心：树的遍历
@@ -1606,6 +2021,10 @@ class Solution:
 
 当题目中出现 `“所有组合” `等类似字眼时，我们第一感觉就要想到用回溯。
 
+> 需要对`树的 DFS `熟悉，因为`回溯的问题`基本都可以抽象成`树形结构问题`
+
+### 无条件限制的所有组合
+
 下面的模板是，遍历digits里每个digit对应的字典里的所有letter
 
 {'1':'abc,'2':'de'}，则遍历['ad','ae'','bd','de','cd','ce']
@@ -1626,7 +2045,30 @@ class Solution:
     backtrack(0)
 ```
 
-> 需要对`树的 DFS `熟悉，因为`回溯的问题`基本都可以抽象成`树形结构问题`
+### 有条件限制的所有组合
+
+下面的模板是：给定n，n对括号()的有效组合
+
+想象成树的有条件分支就比较好理解
+
+```python
+def generateParenthesis(self, n: int) -> List[str]:
+    ans = []
+    def backtrack(S, left, right):
+        if len(S) == 2 * n:
+            ans.append(''.join(S))
+            return
+        if left < n:
+            S.append('(')
+            backtrack(S, left+1, right)
+            S.pop()
+        if right < left:
+            S.append(')')
+            backtrack(S, left, right+1)
+            S.pop()
+    backtrack([], 0, 0)
+    return ans
+```
 
 ## 并查集DisjointSets
 
