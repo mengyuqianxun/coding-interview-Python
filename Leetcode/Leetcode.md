@@ -1728,6 +1728,243 @@ class Solution:
         return res
 ```
 
+## [42. 接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)
+
+方法一：
+
+用数组去存储当前位置左边最高值和右边最高值，最后进行计算。
+
+```python
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        n = len(height)
+        if n == 0 or n == 1:
+            return 0
+        maxleft = [0]*n
+        maxleft[0] = height[0]
+        for i in range(1,n):
+            maxleft[i] = max(height[i],maxleft[i - 1])
+        maxright = [0]*n
+        maxright[n - 1] = height[n - 1]
+        for i in range(n - 2,-1,-1):
+            maxright[i] = max(height[i],maxright[i + 1])
+        ans = 0
+        for i in range(1,len(height) - 1):
+            ans += (min(maxleft[i],maxright[i]) - height[i])
+        return ans
+```
+
+方法二：
+
+双指针，分别从最左端和最右端出发，较小的向中间移动，并且需要存储两边遍历时的高度值。
+
+## [48. 旋转图像](https://leetcode-cn.com/problems/rotate-image/)
+
+[官方题解](https://leetcode-cn.com/problems/rotate-image/solution/xuan-zhuan-tu-xiang-by-leetcode-solution-vu3m/)
+
+方法一：
+
+翻转代替旋转
+
+```python
+class Solution:
+    def rotate(self, matrix: List[List[int]]) -> None:
+        n = len(matrix)
+        # 水平翻转
+        for i in range(n // 2):
+            for j in range(n):
+                matrix[i][j], matrix[n - i - 1][j] = matrix[n - i - 1][j], matrix[i][j]
+        # 主对角线翻转
+        for i in range(n):
+            for j in range(i):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+```
+
+方法二：
+
+找规律，用tmp来存储变量
+
+```python
+class Solution:
+    def rotate(self, matrix: List[List[int]]) -> None:
+        n = len(matrix)
+        for i in range(n // 2):
+            for j in range((n + 1) // 2):
+                matrix[i][j], matrix[n - j - 1][i], matrix[n - i - 1][n - j - 1], matrix[j][n - i - 1] \
+                    = matrix[n - j - 1][i], matrix[n - i - 1][n - j - 1], matrix[j][n - i - 1], matrix[i][j]
+
+```
+
+## [49. 字母异位词分组](https://leetcode-cn.com/problems/group-anagrams/)
+
+```python
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        mp = collections.defaultdict(list)
+
+        for st in strs:
+            key = "".join(sorted(st))
+            mp[key].append(st)
+        
+        return list(mp.values())
+```
+
+
+
+```python
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        mp = collections.defaultdict(list)
+
+        for st in strs:
+            counts = [0] * 26
+            for ch in st:
+                counts[ord(ch) - ord("a")] += 1
+            # 需要将 list 转换成 tuple 才能进行哈希
+            mp[tuple(counts)].append(st)
+        
+        return list(mp.values())
+```
+
+`defaultdict`：用法
+
+```python
+from collections import defaultdict
+
+dict1 = defaultdict(int)
+dict2 = defaultdict(set)
+dict3 = defaultdict(str)
+dict4 = defaultdict(list)
+dict1[2] ='two'
+
+print(dict1[1])
+print(dict2[1])
+print(dict3[1])
+print(dict4[1])
+
+0
+set()
+
+[]
+```
+
+
+
+## [53. 最大子序和](https://leetcode-cn.com/problems/maximum-subarray/)
+
+动态规划
+
+```python
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        n = len(nums)
+        for i in range(1,n):
+            if nums[i - 1] > 0:
+                nums[i] += nums[i -1]
+        return max(nums)
+
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = tmp = nums[0]
+        for i in range(1,n):
+            if tmp > 0:
+                tmp += nums[i]
+            else:
+                tmp = nums[i]
+            if tmp > ans:
+                ans = tmp
+        return ans
+```
+
+## [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+
+```python
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        n = len(nums)
+        l,r = 0,nums[0]
+        while r < n-1 :
+            tmp = r
+            for i in range(l,r + 1):
+                r = max(r,i + nums[i])
+            l = tmp
+            if tmp == r:
+                return False
+        return True
+```
+
+
+
+## [56. 合并区间](https://leetcode-cn.com/problems/merge-intervals/)
+
+每次更新区间[l,r]，将符合条件的拿出，重新更新。
+
+```python
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        ans = []
+        intervals.sort(key = lambda x:x[0])
+        l,r = intervals[0][0],intervals[0][1]
+        for i in range(1,len(intervals)):
+            if intervals[i][0] <= r:
+                r = max(intervals[i][1],r)
+            else:
+                ans.append([l,r])
+                l,r = intervals[i][0],intervals[i][1]
+        ans.append([l,r])
+        return ans
+```
+
+## [62. 不同路径](https://leetcode-cn.com/problems/unique-paths/)
+
+排列组合：答案为$C_{m+n-2}^{m-1}$。
+
+```python
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        a,b = 1,1
+        for i in range(m - 1):
+            a *= m + n - 2 - i
+            b *= i + 1
+        return int(a/b)
+```
+
+## [64. 最小路径和](https://leetcode-cn.com/problems/minimum-path-sum/)
+
+```python
+class Solution:
+    def minPathSum(self, grid: List[List[int]]) -> int:
+        m,n = len(grid),len(grid[0])
+        dp = [[0]*n for _ in range(m)]
+        dp[0][0] = grid[0][0]
+        for i in range(1,m):
+            dp[i][0] = dp[i - 1][0] + grid[i][0]
+        for i in range(1,n):
+            dp[0][i] = dp[0][i - 1] + grid[0][i]
+        for i in range(1,m):
+            for j in range(1,n):
+                dp[i][j] = min(dp[i - 1][j],dp[i][j - 1]) + grid[i][j]
+        return dp[-1][-1]
+```
+
+## [70. 爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)
+
+循环写斐波那契数列。
+
+```python
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        if n == 1:
+            return 1
+        if n == 2:
+            return 2
+        a,b = 1,2
+        for _ in range(n - 2):
+            a,b = b,a + b
+        return b
+```
+
 
 
 # 知识点目录
@@ -1813,6 +2050,27 @@ pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
                 start += 1
             更新答案
         返回 ans
+```
+
+
+
+```python
+"""给定待查串s和目标串t"""
+need, window = {}, {}
+for c in t:
+    记录need     # 视具体问题而定
+left, right = 0, 0
+valid = 0
+while right < len(s):        # 窗口右边界不断扩大，本质是搜索问题的可能解
+    c = s[right]      # 即将加入到窗口中的字符
+    right += 1
+    更新窗口中的数据
+    while 满足窗口收缩条件：  # 窗口的左边界收缩，本质是优化可行解
+        记录或返回结果
+        d = s[left]   # 即将从窗口中删除的字符
+        left += 1
+        更新窗口中的数据
+return 结果
 ```
 
 ### 固定窗口
