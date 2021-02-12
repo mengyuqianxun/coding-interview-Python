@@ -809,6 +809,64 @@ class Solution(object):
 
 特别要注意的是相减为0的情况。
 
+## [119. 杨辉三角 II](https://leetcode-cn.com/problems/pascals-triangle-ii/)
+
+给定一个非负索引 *k*，其中 *k* ≤ 33，返回杨辉三角的第 *k* 行。
+
+>  示例:
+>
+> 输入: 3
+> 输出: [1,3,3,1]
+
+**进阶：**
+
+你可以优化你的算法到 *O*(*k*) 空间复杂度吗？
+
+
+
+[119代码](119.py)
+
+`思路`：
+
+
+
+杨辉三角具有以下性质：
+
+1. 每行数字左右对称，由1开始逐渐变大再变小，并最终回到1。
+2. 第n行（从0开始编号）的数字有n+1项，前n行共有$\frac{n(n+1)}{2}$个数。
+
+3. 第n行的第m个数（从0开始编号）可表示为可以被表示为组合数$\mathcal{C}(n,m)$，记作$\mathcal{C}_n^m$
+     或$C\binom{n}{m}$，即为从n个不同元素中取m个元素的组合数。我们可以用公式来表示它：$\mathcal{C}_n^m=\dfrac{n!}{m!(n-m)!}$	。
+4. 每个数字等于上一行的左右两个数字之和，可用此性质写出整个杨辉三角。即第n行的第i个数等于第n-1行的第i-1个数和第i个数之和。这也是组合数的性质之一，即$\mathcal{C}_n^i=\mathcal{C}_{n-1}^i+\mathcal{C}_{n-1}^{i-1}$
+5. $(a+b)^n$的展开式（二项式展开）中的各项系数依次对应杨辉三角的第n行中的每一项。
+
+
+
+使用性质四来计算，方法为了优化空间使用`滚动数组`
+
+```python
+class Solution:
+    def getRow(self, rowIndex: int) -> List[int]:
+        ans = [1]
+        for length in range(1, rowIndex+1):
+            tmp = [1]
+            for i in range(1, length):
+                tmp.append(ans[i] + ans[i-1])
+            tmp.append(1)
+            ans = tmp
+        return ans
+```
+
+
+
+或者使用递推公式
+$$
+C_n^m = \frac{{n!}}{{m!(n - m)!}} = C_n^{m - 1} \times \frac{{n - m + 1}}{m}
+$$
+
+
+
+
 
 
 # Leetcode热题Hot100
@@ -1963,6 +2021,105 @@ class Solution:
         for _ in range(n - 2):
             a,b = b,a + b
         return b
+```
+
+## [72. 编辑距离](https://leetcode-cn.com/problems/edit-distance/)
+
+hard，直接看[题解](https://leetcode-cn.com/problems/edit-distance/solution/bian-ji-ju-chi-by-leetcode-solution/)吧
+
+
+
+```python
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        m=len(word1)
+        n=len(word2)
+        dp=list(range(n+1))
+        for i in range(m):
+            lu=dp[0]
+            dp[0]=i+1
+            for j in range(n):
+                dp[j+1],lu=min(dp[j]+1,dp[j+1]+1,lu+int(word1[i]!=word2[j])),dp[j+1]
+        return dp[-1]
+```
+
+## [75. 颜色分类](https://leetcode-cn.com/problems/sort-colors/)
+
+系统排序函数
+
+```python
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        nums.sort()
+```
+
+自己写快速排序
+
+```python
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        def quicksort(arr,start,end):
+            if start > end:
+                return
+            k = arr[end]
+            l,r = start,end
+            while l < r:
+                while arr[l] <= k and l < r:
+                    l += 1
+                arr[l],arr[r] = arr[r],arr[l]
+                while arr[r] > k and l < r:
+                    r -= 1
+                arr[l],arr[r] = arr[r],arr[l]
+            quicksort(arr,start,l - 1)
+            quicksort(arr,l + 1,end)
+        quicksort(nums,0,len(nums) - 1)    
+```
+
+单指针，第一次将0放在1的前面，第二次将2放在1的后面。
+
+```python
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        n = len(nums)
+        ptr = 0
+        for i in range(n):
+            if nums[i] == 0:
+                nums[i], nums[ptr] = nums[ptr], nums[i]
+                ptr += 1
+        for i in range(ptr, n):
+            if nums[i] == 1:
+                nums[i], nums[ptr] = nums[ptr], nums[i]
+                ptr += 1
+```
+
+双指针，对上面进行优化，因为也就三个数。
+
+```python
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        n = len(nums)
+        p0 = p1 = 0
+        for i in range(n):
+            if nums[i] == 1:
+                nums[i], nums[p1] = nums[p1], nums[i]
+                p1 += 1
+            elif nums[i] == 0:
+                nums[i], nums[p0] = nums[p0], nums[i]
+                if p0 < p1:
+                    nums[i], nums[p1] = nums[p1], nums[i]
+                p0 += 1
+                p1 += 1
 ```
 
 
