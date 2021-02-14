@@ -864,6 +864,93 @@ $$
 C_n^m = \frac{{n!}}{{m!(n - m)!}} = C_n^{m - 1} \times \frac{{n - m + 1}}{m}
 $$
 
+## [448. 找到所有数组中消失的数字](https://leetcode-cn.com/problems/find-all-numbers-disappeared-in-an-array/)
+
+给定一个范围在  1 ≤ a[i] ≤ n ( n = 数组大小 ) 的 整型数组，数组中的元素一些出现了两次，另一些只出现一次。找到所有在 [1, n] 范围之间没有出现在数组中的数字。
+
+您能在不使用额外空间且时间复杂度为O(n)的情况下完成这个任务吗? 你可以假定返回的数组不算在额外空间内。
+
+> 示例:
+>
+> 
+>
+> 输入:
+> [4,3,2,7,8,2,3,1]
+>
+> 输出:
+> [5,6]
+
+
+
+[448.py](448.py)
+
+`思路`:
+
+方法一：使用python的集合类型
+
+```python
+arr = set(nums)
+arr2 = set([i for i in range(1,len(nums) + 1)])
+ans = list(arr2 - arr)
+```
+
+
+
+方法二：因为元素大小有限，可以考虑用哈希表或者固定长度的数组来存储出现的元素
+
+而我们想要优化空间复杂度的话，就需要尝试考虑`将原数组nums作为存储数组`。
+
+由于nums的数字范围均在[1,n]中，我们可以利用这一范围之外的数字，来表达「是否存在」的含义。
+
+具体来说，遍历num，`每遇到一个数x,就让nums[x−1] 增加n`。由于nums 中所有数均在[1,n] 中，增加以后，这些数必然大于n。最后我们遍历nums，若nums[i] 未大于n，就说明没有遇到过数i+1。这样我们就找到了缺失的数字。
+
+注意，当我们遍历到某个位置时，其中的数可能已经被增加过，因此需要对n取模来还原出它本来的值。
+
+
+
+## [765. 情侣牵手](https://leetcode-cn.com/problems/couples-holding-hands/)
+
+N 对情侣坐在连续排列的 2N 个座位上，想要牵到对方的手。 计算最少交换座位的次数，以便每对情侣可以并肩坐在一起。 一次交换可选择任意两人，让他们站起来交换座位。
+
+人和座位用 0 到 2N-1 的整数表示，情侣们按顺序编号，第一对是 (0, 1)，第二对是 (2, 3)，以此类推，最后一对是 (2N-2, 2N-1)。
+
+这些情侣的初始座位  row[i] 是由最初始坐在第 i 个座位上的人决定的。
+
+> 示例 1:
+>
+> 输入: row = [0, 2, 1, 3]
+> 输出: 1
+> 解释: 我们只需要交换row[1]和row[2]的位置即可。
+>
+> 
+>
+> 示例 2:
+>
+> 输入: row = [3, 2, 0, 1]
+> 输出: 0
+> 解释: 无需交换座位，所有的情侣都已经可以手牵手了。
+
+**说明**:
+
+* len(row) 是偶数且数值在 [4, 60]范围内。
+* 可以保证row 是序列 0...len(row)-1 的一个全排列。
+
+[765.py](765.py)
+
+
+
+`思路`:
+
+方法一：并查集
+
+使用并查集，节点为n，如果节点a指向节点b，代表需要进行一次交换，遍历数组，每次取两个数进行合并，最后遍历parent数组，如果parent[i]=i，表示无需换位置，而不相等的表示需要交换。
+
+
+
+方法二：暴力破解
+
+`情侣之间，一方与1进行异或，可以得到另一方`:a^1 = b	b^1 = a
+
 
 
 
@@ -2122,6 +2209,37 @@ class Solution:
                 p1 += 1
 ```
 
+## [78. 子集](https://leetcode-cn.com/problems/subsets/)
+
+迭代
+
+```python
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        res = [[]]
+        for i in nums:
+            res = res + [[i] + num for num in res]
+        return res
+```
+
+回溯
+
+```python
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        ans = []
+        n = len(nums)
+        
+        def backtrack(i, tmp):
+            ans.append(tmp)
+            for j in range(i, n):
+                backtrack(j + 1,tmp + [nums[j]] )
+        backtrack(0, [])
+        return ans
+```
+
+
+
 
 
 # 知识点目录
@@ -2704,3 +2822,98 @@ x    y
 ```
 
 就不难看出应该如何更新。
+
+# 竞赛题
+
+## 228场力扣周赛
+
+[评论区](https://leetcode-cn.com/circle/discuss/l3HxwJ/)
+
+### 5677. 统计同构子字符串的数目
+
+给你一个字符串 `s` ，返回 `s` 中 **同构子字符串** 的数目。由于答案可能很大，只需返回对 `109 + 7` **取余** 后的结果。
+
+**同构字符串** 的定义为：如果一个字符串中的所有字符都相同，那么该字符串就是同构字符串。
+
+**子字符串** 是字符串中的一个连续字符序列。
+
+
+
+**示例 1：**
+
+```
+输入：s = "abbcccaa"
+输出：13
+解释：同构子字符串如下所列：
+"a"   出现 3 次。
+"aa"  出现 1 次。
+"b"   出现 2 次。
+"bb"  出现 1 次。
+"c"   出现 3 次。
+"cc"  出现 2 次。
+"ccc" 出现 1 次。
+3 + 1 + 2 + 1 + 3 + 2 + 1 = 13
+```
+
+**示例 2：**
+
+```
+输入：s = "xy"
+输出：2
+解释：同构子字符串是 "x" 和 "y" 。
+```
+
+**示例 3：**
+
+```
+输入：s = "zzzzz"
+输出：15
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 105`
+- `s` 由小写字符串组成
+
+
+
+中心拓展法，参考[647. 回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)，但可惜超时了。
+
+```python
+class Solution:
+    def countHomogenous(self, s: str) -> int:
+        n = len(s)
+        self.ans = 0
+        def Isomorphism(i,k):
+            while i < n and s[i] == k:
+                i += 1            
+                if self.ans == 10**9 +7:
+                    self.ans = 0
+                self.ans += 1
+        for i in range(n):
+            Isomorphism(i,s[i])
+        return self.ans
+```
+
+每次找最长相同字串:大佬代码
+
+```python
+class Solution:
+    def countHomogenous(self, s: str) -> int:
+        x = '$'
+        cnt = 0
+        ans = 0
+        for c in s + '#':
+            if c == x:
+                cnt += 1
+            else:
+                ans += cnt * (cnt + 1) // 2
+                x = c
+                cnt = 1
+        return ans % 1000000007
+```
+
+
+
