@@ -3,7 +3,7 @@
 
 实现语言为**python**。
 
-推荐下载使用**typora**食用，有目录以及Latex数学公式。
+推荐下载使用**typora**食用。
 
 ---
 
@@ -24,4 +24,16 @@ Leetcode
 将在网站上编译通过。
 
 具体题目和解析见[Leetcode.md](/Leetcode/Leetcode.md)
+
+
+
+
+
+具体内容有如下板块：
+
+1. Leetcode每日一题
+
+2. Leetcode热题Hot100
+3. 知识点目录
+4. 竞赛题
 

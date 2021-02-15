@@ -906,8 +906,6 @@ ans = list(arr2 - arr)
 
 注意，当我们遍历到某个位置时，其中的数可能已经被增加过，因此需要对n取模来还原出它本来的值。
 
-
-
 ## [765. 情侣牵手](https://leetcode-cn.com/problems/couples-holding-hands/)
 
 N 对情侣坐在连续排列的 2N 个座位上，想要牵到对方的手。 计算最少交换座位的次数，以便每对情侣可以并肩坐在一起。 一次交换可选择任意两人，让他们站起来交换座位。
@@ -950,6 +948,65 @@ N 对情侣坐在连续排列的 2N 个座位上，想要牵到对方的手。 �
 方法二：暴力破解
 
 `情侣之间，一方与1进行异或，可以得到另一方`:a^1 = b	b^1 = a
+
+
+
+## [485. 最大连续1的个数](https://leetcode-cn.com/problems/max-consecutive-ones/)
+
+给定一个二进制数组， 计算其中最大连续1的个数。
+
+>  示例 1:
+>
+> 输入: [1,1,0,1,1,1]
+> 输出: 3
+> 解释: 开头的两位和最后的三位都是连续1，所以最大连续1的个数是 3.
+
+**说明**:
+
+* 输入的数组只包含 0 和1。
+* 输入数组的长度是正整数，且不超过 10,000。
+
+[495](485.py)
+
+`思路`：
+
+遍历一次，如果为1则长度加1，如果为0则清0。
+
+要注意的是，只有遇到0才会记录长度，所以可以在遍历后加一个max，也可以给数组最后添加一个不为1的数。
+
+```python
+class Solution:
+    def findMaxConsecutiveOnes(self, nums: List[int]) -> int:
+        maxl,l = 0,0
+        for num in nums:
+            if num == 1:
+                l += 1
+            else:
+                maxl = max(l,maxl)
+                l = 0
+        maxl = max(l,maxl)
+        return maxl
+```
+
+如果是字符串，则可以在for循环中添加，参考[5677. 统计同构子字符串的数目](#5677. 统计同构子字符串的数目)
+
+这题目的集合是26个小写字母
+
+```python
+class Solution:
+    def countHomogenous(self, s: str) -> int:
+        x = '$'
+        cnt = 0
+        ans = 0
+        for c in s + '#':
+            if c == x:
+                cnt += 1
+            else:
+                ans += cnt * (cnt + 1) // 2
+                x = c
+                cnt = 1
+        return ans % 1000000007
+```
 
 
 
@@ -2237,6 +2294,124 @@ class Solution:
         backtrack(0, [])
         return ans
 ```
+
+## [79. 单词搜索](https://leetcode-cn.com/problems/word-search/)
+
+本题可以使用DFS(深度优先遍历)、回溯法
+
+
+
+设函数check(i,j,k) 判断以网格的(i,j) 位置出发，能否搜索到单词word[k..]，其中word[k..] 表示字符串 word 从第k个字符开始的后缀子串。如果能搜索到，则返回true，反之返回false。
+
+```python
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        def check(i: int, j: int, k: int) -> bool:
+            if board[i][j] != word[k]:
+                return False
+            if k == len(word) - 1:
+                return True
+            
+            visited.add((i, j))
+            result = False
+            for di, dj in directions:
+                newi, newj = i + di, j + dj
+                if 0 <= newi < len(board) and 0 <= newj < len(board[0]):
+                    if (newi, newj) not in visited:
+                        if check(newi, newj, k + 1):
+                            result = True
+                            break            
+            visited.remove((i, j))
+            return result
+
+        h, w = len(board), len(board[0])
+        visited = set()
+        for i in range(h):
+            for j in range(w):
+                if check(i, j, 0):
+                    return True
+        return False
+```
+
+这里回溯用到了标记，因为#是不会在集合里的，所以可以用作`边界条件`和`已经访问过`，就可以节省空间。
+
+
+
+几个细节：
+
+is_exist为什么要用self：
+
+`函数定义中声明的变量，他们与在函数外使用的其它同名变量没有任何关系，即变量名称对函数来说是局部的。`
+
+为什么要还原：
+
+因为如果有路径没能走到底，那么它就不能影响其他路径的尝试。
+
+```python
+class Solution:
+    def exist(self, board, word: str) -> bool:
+        def helper(row, col, idx):
+            if idx == len(word):
+                self.is_exist = True
+                return
+            for i, j in [(row, col - 1), (row, col + 1), (row - 1, col), (row + 1, col)]:
+                if self.is_exist:   # 截断跳出
+                    return
+                if board[i][j] == '#':
+                    continue
+                if board[i][j] == word[idx]:
+                    board[i][j] = '#'
+                    helper(i, j, idx + 1)
+                    board[i][j] = word[idx]     # 注意还原！！！
+
+        n, m = len(board), len(board[0])
+        board = [['#'] + row + ['#'] for row in board]
+        board.insert(0, ['#' for _ in range(m + 2)])
+        board.append(['#' for _ in range(m + 2)])
+
+        self.is_exist = False
+        for i in range(1, n + 1):   # 注意遍历的范围，避免越界！！！
+            for j in range(1, m + 1):
+                if board[i][j] == word[0]:
+                    board[i][j] = '#'
+                    helper(i, j, 1)
+                    board[i][j] = word[0]   # 注意还原！！！
+                if self.is_exist:
+                    return True
+        return False
+```
+
+
+
+## [94. 二叉树的中序遍历](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)
+
+递归
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
+        def inorder(root):
+            if root == None:
+                return
+            inorder(root.left)
+            ans.append(root.val)
+            inorder(root.right)
+        ans = []
+        inorder(root)
+        return ans
+```
+
+递归函数我们也可以用迭代的方式实现，两种方式是等价的，区别在于递归的时候隐式地维护了一个栈，而我们在迭代的时候需要显式地将这个栈模拟出来，其他都相同。
+
+
 
 
 
