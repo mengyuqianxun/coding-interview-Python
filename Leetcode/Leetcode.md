@@ -966,7 +966,7 @@ N 对情侣坐在连续排列的 2N 个座位上，想要牵到对方的手。 �
 * 输入的数组只包含 0 和1。
 * 输入数组的长度是正整数，且不超过 10,000。
 
-[495](485.py)
+[495.py](485.py)
 
 `思路`：
 
@@ -1007,6 +1007,53 @@ class Solution:
                 cnt = 1
         return ans % 1000000007
 ```
+
+## [561. 数组拆分 I](https://leetcode-cn.com/problems/array-partition-i/)
+
+给定长度为 2n 的整数数组 nums ，你的任务是将这些数分成 n 对, 例如 (a1, b1), (a2, b2), ..., (an, bn) ，使得从 1 到 n 的 min(ai, bi) 总和最大。
+
+返回该 最大总和 。
+
+>  示例 1：
+>
+> 输入：nums = [1,4,3,2]
+> 输出：4
+> 解释：所有可能的分法（忽略元素顺序）为：
+>
+> (1, 4), (2, 3) -> min(1, 4) + min(2, 3) = 1 + 2 = 3
+>
+> (1, 3), (2, 4) -> min(1, 3) + min(2, 4) = 1 + 2 = 3
+>
+> (1, 2), (3, 4) -> min(1, 2) + min(3, 4) = 1 + 3 = 4
+>
+> 所以最大总和为 4
+>
+> 
+>
+> 示例 2：
+>
+> 输入：nums = [6,2,6,5,1,2]
+> 输出：9
+> 解释：最优的分法为 (2, 1), (2, 5), (6, 6). min(2, 1) + min(2, 5) + min(6, 6) = 1 + 2 + 6 = 9
+
+**提示**：
+
+* 1 <= n <= 104
+* nums.length == 2 * n
+* -104 <= nums[i] <= 104
+
+
+
+[561.py](561.py)
+
+`排序`:
+
+要总数最大，那么一组数里面的差距要很小，所以，可以证明排序完的数组的总和最大。
+
+````python
+nums.sort()
+return sum(nums[::2])
+````
 
 
 
@@ -2413,7 +2460,403 @@ class Solution:
 
 
 
+## [96. 不同的二叉搜索树](https://leetcode-cn.com/problems/unique-binary-search-trees/)
 
+[题解](https://leetcode-cn.com/problems/unique-binary-search-trees/solution/bu-tong-de-er-cha-sou-suo-shu-by-leetcode-solution/)
+
+推导G函数
+
+```python
+class Solution:
+    def numTrees(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        G = [0]*(n+1)
+        G[0], G[1] = 1, 1
+
+        for i in range(2, n+1):
+            for j in range(1, i+1):
+                G[i] += G[j-1] * G[i-j]
+
+        return G[n]
+```
+
+数学方法推导G函数
+
+```python
+class Solution(object):
+    def numTrees(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        C = 1
+        for i in range(0, n):
+            C = C * 2*(2*i+1)/(i+2)
+        return int(C)
+```
+
+## [98. 验证二叉搜索树](https://leetcode-cn.com/problems/validate-binary-search-tree/)
+
+主要思路是递归和中序排序
+
+自己的入门写法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isValidBST(self, root: TreeNode) -> bool:
+        def inorder(root):
+            if not root:
+                return
+            inorder(root.left)
+            tmp.append(root.val)
+            inorder(root.right)
+        tmp = []
+        inorder(root)
+        for i in range(len(tmp) - 1):
+            if tmp[i] >= tmp[i + 1]:
+                return False
+        return True
+```
+
+递归写法，加入参数上下界
+
+```python
+class Solution:
+    def isValidBST(self, root: TreeNode) -> bool:
+        def helper(node, lower = float('-inf'), upper = float('inf')) -> bool:
+            if not node:
+                return True
+            
+            val = node.val
+            if val <= lower or val >= upper:
+                return False
+
+            if not helper(node.right, val, upper):
+                return False
+            if not helper(node.left, lower, val):
+                return False
+            return True
+
+        return helper(root)
+```
+
+中序遍历，调用栈
+
+```python
+class Solution:
+    def isValidBST(self, root: TreeNode) -> bool:
+        stack, inorder = [], float('-inf')
+        
+        while stack or root:
+            while root:
+                stack.append(root)
+                root = root.left
+            root = stack.pop()
+            # 如果中序遍历得到的节点的值小于等于前一个 inorder，说明不是二叉搜索树
+            if root.val <= inorder:
+                return False
+            inorder = root.val
+            root = root.right
+        return True
+```
+
+## [101. 对称二叉树](https://leetcode-cn.com/problems/symmetric-tree/)
+
+递归法
+
+```python
+class Solution(object):
+	def isSymmetric(self, root):
+		"""
+		:type root: TreeNode
+		:rtype: bool
+		"""
+		if not root:
+			return True
+		def dfs(left,right):
+			# 递归的终止条件是两个节点都为空
+			# 或者两个节点中有一个为空
+			# 或者两个节点的值不相等
+			if not (left or right):
+				return True
+			if not (left and right):
+				return False
+			if left.val!=right.val:
+				return False
+			return dfs(left.left,right.right) and dfs(left.right,right.left)
+		# 用递归函数，比较左节点，右节点
+		return dfs(root.left,root.right)
+```
+
+迭代法
+
+```python
+class Solution(object):
+	def isSymmetric(self, root):
+		"""
+		:type root: TreeNode
+		:rtype: bool
+		"""
+		if not root or not (root.left or root.right):
+			return True
+		# 用队列保存节点	
+		queue = [root.left,root.right]
+		while queue:
+			# 从队列中取出两个节点，再比较这两个节点
+			left = queue.pop(0)
+			right = queue.pop(0)
+			# 如果两个节点都为空就继续循环，两者有一个为空就返回false
+			if not (left or right):
+				continue
+			if not (left and right):
+				return False
+			if left.val!=right.val:
+				return False
+			# 将左节点的左孩子， 右节点的右孩子放入队列
+			queue.append(left.left)
+			queue.append(right.right)
+			# 将左节点的右孩子，右节点的左孩子放入队列
+			queue.append(left.right)
+			queue.append(right.left)
+		return True
+```
+
+## [102. 二叉树的层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
+
+DFS广度优先遍历，queue存储的是每次一层上的节点，遍历时，将一层的节点依次弹出，记录数值、存储下一层的节点。
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def levelOrder(self, root: TreeNode) -> List[List[int]]:
+        if not root:
+            return []
+        queue = [root]
+        ans = []
+        while queue:
+            tmp = []
+            n = len(queue)
+            for _ in range(n):
+                r = queue.pop(0)
+                tmp.append(r.val)
+                if r.left:
+                    queue.append(r.left)
+                if r.right:
+                    queue.append(r.right)
+            ans.append(tmp)
+        return ans
+```
+
+## [104. 二叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/)
+
+和上一层一样的思路，层序遍历，都是BFS的产物。
+
+使用collections.deque([root])更快，弹出使用popleft()，因为使用list.pop(0)复杂度为O(N)。
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxDepth(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        deque = [root]
+        ans = 0
+        while deque:
+            for _ in range(len(deque)):
+                r = deque.pop(0)
+                if r.left:
+                    deque.append(r.left)
+                if r.right:
+                    deque.append(r.right)
+            ans += 1
+        return  ans
+```
+
+## [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+方法一：递归
+
+细节
+
+在中序遍历中对根节点进行定位时，一种简单的方法是直接扫描整个中序遍历的结果并找出根节点，但这样做的时间复杂度较高。我们可以考虑使用哈希表来帮助我们快速地定位根节点。对于哈希映射中的每个键值对，键表示一个元素（节点的值），值表示其在中序遍历中的出现位置。在构造二叉树的过程之前，我们可以对中序遍历的列表进行一遍扫描，就可以构造出这个哈希映射。在此后构造二叉树的过程中，我们就只需要 O(1)O(1) 的时间对根节点进行定位了。
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> TreeNode:
+        def myBuildTree(preorder_left: int, preorder_right: int, inorder_left: int, inorder_right: int):
+            if preorder_left > preorder_right:
+                return None            
+            preorder_root = preorder_left
+            inorder_root = index[preorder[preorder_root]]        
+            root = TreeNode(preorder[preorder_root])
+            # 得到左子树中的节点数目
+            size_left_subtree = inorder_root - inorder_left
+            root.left = myBuildTree(preorder_left + 1, preorder_left + size_left_subtree, inorder_left, inorder_root - 1)
+            root.right = myBuildTree(preorder_left + size_left_subtree + 1, preorder_right, inorder_root + 1, inorder_right)
+            return root
+        
+        n = len(preorder)
+        # 构造哈希映射，帮助我们快速定位根节点
+        index = {element: i for i, element in enumerate(inorder)}
+        return myBuildTree(0, n - 1, 0, n - 1)
+```
+
+方法二：迭代
+思路
+
+迭代法是一种非常巧妙的实现方法。
+
+对于前序遍历中的任意两个连续节点 uu 和 vv，根据前序遍历的流程，我们可以知道 uu 和 vv 只有两种可能的关系：
+
+* v是u的左儿子。这是因为在遍历到u之后，下一个遍历的节点就是u的左儿子，即v；
+
+* u没有左儿子，并且v是u的某个祖先节点（或者u本身）的右儿子。如果u没有左儿子，那么下一个遍历的节点就是u的右儿子。如果u没有右儿子，我们就会向上回溯，直到遇到第一个有右儿子（且u不在它的右儿子的子树中）的节点$u_a$ ，那么v就是$u_a$的右儿子。
+
+## [114. 二叉树展开为链表](https://leetcode-cn.com/problems/flatten-binary-tree-to-linked-list/)
+
+递归
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def flatten(self, root: TreeNode) -> None:
+        """
+        Do not return anything, modify root in-place instead.
+        """
+        def flatten(self, root: TreeNode):
+                if root is None:
+                    return
+                self.flatten(root.left)
+                self.flatten(root.right)
+                if root.left:
+                    pre = root.left
+                    while pre.right:
+                        pre = pre.right
+                    pre.right = root.right
+                    root.right = root.left
+                    root.left = None
+        flatten(self,root)
+```
+
+递推方法
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def flatten(self, root: TreeNode) -> None:
+        """
+        Do not return anything, modify root in-place instead.
+        """
+        while (root != None):
+            if root.left != None:
+                most_right = root.left
+                while most_right.right != None: most_right = most_right.right
+                most_right.right = root.right
+                root.right = root.left
+                root.left = None
+            root = root.right
+        return
+```
+
+## [121. 买卖股票的最佳时机](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock/)
+
+存储一个历史最低价
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        minprice = prices[0]
+        ans = 0
+        for i in range(1,len(prices)):
+            tmp = prices[i] - minprice
+            if tmp > ans:
+                ans = tmp
+            minprice = min(minprice,prices[i])
+        return ans
+```
+
+## [136. 只出现一次的数字](https://leetcode-cn.com/problems/single-number/)
+
+用异或
+
+```python
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        return reduce(lambda x, y: x ^ y, nums)
+
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        ans = 0
+        for num in nums:
+            ans ^= num
+        return ans
+```
+
+## [141. 环形链表](https://leetcode-cn.com/problems/linked-list-cycle/)
+
+快慢指针法
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def hasCycle(self, head: ListNode) -> bool:
+        if not head or not head.next:
+            return False
+        
+        slow = head
+        fast = head.next
+
+        while slow != fast:
+            if not fast or not fast.next:
+                return False
+            slow = slow.next
+            fast = fast.next.next
+        
+        return True
+```
 
 
 
@@ -2719,7 +3162,195 @@ class Solution:
 
 **DFS 适合做一些暴力枚举的题目，DFS 如果借助函数调用栈，则可以轻松地使用递归来实现。**
 
+层次遍历和 BFS 是**完全不一样**的东西。
 
+层次遍历就是一层层遍历树，按照树的层次顺序进行访问。
+
+[102. 二叉树的层序遍历](#[102. 二叉树的层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/))
+
+```python
+class Solution:
+    def levelOrder(self, root: TreeNode) -> List[List[int]]:
+        if not root:
+            return []
+        queue = [root]
+        ans = []
+        while queue:
+            tmp = []
+            for _ in range(len(queue)):
+                r = queue.pop(0)
+                tmp.append(r.val)
+                if r.left:
+                    queue.append(r.left)
+                if r.right:
+                    queue.append(r.right)
+            ans.append(tmp)
+        return ans
+```
+
+**BFS 的核心在于求最短问题时候可以提前终止，这才是它的核心价值，层次遍历是一种不需要提前终止的 BFS 的副产物**。这个提前终止不同于 DFS 的剪枝的提前终止，而是找到最近目标的提前终止。比如我要找距离最近的目标节点，BFS 找到目标节点就可以直接返回。而 DFS 要穷举所有可能才能找到最近的，这才是 BFS 的核心价值。实际上，我们也可以使用 DFS 实现层次遍历的效果，借助于递归，代码甚至会更简单。
+
+> 如果找到任意一个满足条件的节点就好了，不必最近的，那么 DFS 和 BFS 没有太大差别。同时为了书写简单，我通常会选择 DFS。
+
+#### 深度优先遍历DFS
+
+深度优先搜索算法（英语：Depth-First-Search，DFS）是一种用于遍历树或图的算法。沿着树的深度遍历树的节点，尽可能深的搜索树的分支。当节点 v 的所在边都己被探寻过，搜索将回溯到发现节点 v 的那条边的起始节点。这一过程一直进行到已发现从源节点可达的所有节点为止。如果还存在未被发现的节点，则选择其中一个作为源节点并重复以上过程，整个进程反复进行直到所有节点都被访问为止，属于**盲目搜索**。
+
+深度优先搜索是图论中的经典算法，利用深度优先搜索算法可以产生目标图的相应拓扑排序表，利用拓扑排序表可以方便的解决很多相关的图论问题，如最大路径问题等等。因发明「深度优先搜索算法」，约翰 · 霍普克洛夫特与罗伯特 · 塔扬在 1986 年共同获得计算机领域的最高奖：图灵奖。
+
+![](image/dfs.gif)
+
+`算法流程`
+
+1. 首先将根节点放入**stack**中。
+2. 从*stack*中取出第一个节点，并检验它是否为目标。如果找到所有的节点，则结束搜寻并回传结果。否则将它某一个尚未检验过的直接子节点加入**stack**中。
+3. 重复步骤 2。
+4. 如果不存在未检测过的直接子节点。将上一级节点加入**stack**中。 重复步骤 2。
+5. 重复步骤 4。
+6. 若**stack**为空，表示整张图都检查过了——亦即图中没有欲搜寻的目标。结束搜寻并回传“找不到目标”。
+
+**这里的 stack 可以理解为自己实现的栈，也可以理解为调用栈。如果是调用栈的时候就是递归，如果是自己实现的栈的话就是迭代。**
+
+`算法模板`
+
+二叉树模板
+
+```
+function dfs(root) {
+	if (满足特定条件）{
+		// 返回结果 or 退出搜索空间
+	}
+    dfs(root.left)
+    dfs(root.right)
+}
+```
+
+而我们不同的题目除了 if (满足特定条件部分不同之外)，还会写一些特有的逻辑，这些逻辑写的位置不同，效果也截然不同。那么位置不同会有什么影响，什么时候应该写哪里呢？接下来，我们就聊聊两种常见的 DFS 方式。
+
+前序遍历和后序遍历是最常见的两种 DFS 方式。而另外一种遍历方式 （中序遍历）一般用于平衡二叉树，这个我们后面的**四个重要概念**部分再讲。
+
+##### 前序遍历
+
+如果你的代码大概是这么写的（注意主要逻辑的位置）：
+
+```c++
+function dfs(root) {
+	if (满足特定条件）{
+		// 返回结果 or 退出搜索空间
+    }
+    // 主要逻辑
+    dfs(root.left)
+    dfs(root.right)
+}
+```
+
+那么此时我们称为前序遍历。
+
+##### 后续遍历
+
+而如果你的代码大概是这么写的（注意主要逻辑的位置）：
+
+```c++
+function dfs(root) {
+	if (满足特定条件）{
+		// 返回结果 or 退出搜索空间
+    }
+    dfs(root.left)
+    dfs(root.right)
+    // 主要逻辑
+}
+```
+
+那么此时我们称为后序遍历。
+
+值得注意的是， 我们有时也会会写出这样的代码：
+
+```c++
+function dfs(root) {
+	if (满足特定条件）{
+		// 返回结果 or 退出搜索空间
+    }
+    // 做一些事
+    dfs(root.left)
+    dfs(root.right)
+    // 做另外的事
+}
+```
+
+如上代码，我们在进入和退出左右子树的时候分别执行了一些代码。那么这个时候，是前序遍历还是后续遍历呢？实际上，这属于混合遍历了。不过我们这里只考虑**主逻辑**的位置，关键词是**主逻辑**。
+
+#### 广度优先遍历BFS
+
+BFS 也是图论中算法的一种，不同于 DFS， BFS 采用横向搜索的方式，在数据结构上通常采用队列结构。 注意，DFS 我们借助的是栈来完成，而这里借助的是队列。
+
+BFS 比较适合找**最短距离/路径**和**某一个距离的目标**。比如`给定一个二叉树，在树的最后一行找到最左边的值。 `，此题是力扣 513 的原题。这不就是求距离根节点**最远距离**的目标么？ 一个 BFS 模板就解决了。
+
+![](image/bfs.gif)
+
+`算法流程`
+
+1. 首先将根节点放入队列中。
+2. 从队列中取出第一个节点，并检验它是否为目标。
+   - 如果找到目标，则结束搜索并回传结果。
+   - 否则将它所有尚未检验过的直接子节点加入队列中。
+3. 若队列为空，表示整张图都检查过了——亦即图中没有欲搜索的目标。结束搜索并回传“找不到目标”。
+4. 重复步骤 2。
+
+
+
+“BFS 比较适合找**最短距离/路径**和**某一个距离的目标**”。 如果我需要求的是最短距离/路径，我是不关心我走到第几步的，这个时候可是用不标记层的目标。而如果我需要求距离某个节点距离等于 k 的所有节点，这个时候第几步这个信息就值得被记录了。
+
+##### 标记层
+
+一个常见的 BFS 模板，代入题目只需要根据题目微调即可。
+
+```python
+class Solution:
+    def bfs(k):
+        # 使用双端队列，而不是数组。因为数组从头部删除元素的时间复杂度为 N，双端队列的底层实现其实是链表。
+        queue = collections.deque([root])
+        # 记录层数
+        steps = 0
+        # 需要返回的节点
+        ans = []
+        # 队列不空，生命不止！
+        while queue:
+            size = len(queue)
+            # 遍历当前层的所有节点
+            for _ in range(size):
+                node = queue.popleft()
+                if (step == k) ans.append(node)
+                if node.right:
+                    queue.append(node.right)
+                if node.left:
+                    queue.append(node.left)
+            # 遍历完当前层所有的节点后 steps + 1
+            steps += 1
+        return ans
+```
+
+##### 不标记层
+
+不带层的模板更简单，因此大家其实只需要掌握带层信息的目标就够了。
+
+一个常见的 BFS 模板，代入题目只需要根据题目微调即可。
+
+```python
+class Solution:
+    def bfs(k):
+        # 使用双端队列，而不是数组。因为数组从头部删除元素的时间复杂度为 N，双端队列的底层实现其实是链表。
+        queue = collections.deque([root])
+        # 队列不空，生命不止！
+        while queue:
+            node = queue.popleft()
+            # 由于没有记录 steps，因此我们肯定是不需要根据层的信息去判断的。否则就用带层的模板了。
+            if (node 是我们要找到的) return node
+            if node.right:
+                queue.append(node.right)
+            if node.left:
+                queue.append(node.left)
+        return -1
+```
 
 
 
