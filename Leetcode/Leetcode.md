@@ -1055,6 +1055,61 @@ nums.sort()
 return sum(nums[::2])
 ````
 
+## [566. 重塑矩阵](https://leetcode-cn.com/problems/reshape-the-matrix/)
+
+在MATLAB中，有一个非常有用的函数 reshape，它可以将一个矩阵重塑为另一个大小不同的新矩阵，但保留其原始数据。
+
+给出一个由二维数组表示的矩阵，以及两个正整数r和c，分别表示想要的重构的矩阵的行数和列数。
+
+重构后的矩阵需要将原始矩阵的所有元素以相同的行遍历顺序填充。
+
+如果具有给定参数的reshape操作是可行且合理的，则输出新的重塑矩阵；否则，输出原始矩阵。
+
+> 示例 1:
+>
+> 输入: 
+> nums = [[1,2], [3,4]]，r = 1, c = 4
+> 输出: 
+> [[1,2,3,4]]
+> 解释:
+> 行遍历nums的结果是 [1,2,3,4]。新的矩阵是 1 * 4 矩阵, 用之前的元素值一行一行填充新矩阵。
+>
+> 
+>
+> 示例 2:
+>
+> 输入: 
+> nums = [[1,2],[3,4]]，r = 2, c = 4
+> 输出: 
+> [[1,2], [3,4]]
+> 解释:
+> 没有办法将 2 * 2 矩阵转化为 2 * 4 矩阵。 所以输出原矩阵。
+
+**注意**：
+
+* 给定矩阵的宽和高范围在 [1, 100]。
+* 给定的 r 和 c 都是正数。
+
+[566.py](566.py)
+
+
+
+`思路`:
+
+方法一：直接遍历nums数组，用tmp数组来存储一行的数据，长度为c时添加给ans。
+
+
+
+方法二：映射
+
+直接从二维数组nums得到r行c列的重塑矩阵：
+
+* 设nums本身为m行n列，如果m\*n!=r\*c，那么二者包含的元素个数不相同，因此无法进行重塑；
+
+* 否则，对于x∈[0,mn)，第x 个元素在nums 中对应的下标为 (x / n,x % n)，而在新的重塑矩阵中对应的下标为(x / c,x % c)。我们直接进行赋值即可。
+
+
+
 
 
 
@@ -2858,6 +2913,235 @@ class Solution:
         return True
 ```
 
+## [142. 环形链表 II](https://leetcode-cn.com/problems/linked-list-cycle-ii/)
+
+利用快慢指针计算出头节点到入环点的距离。
+
+[快慢指针](https://leetcode-cn.com/problems/linked-list-cycle-ii/solution/huan-xing-lian-biao-ii-by-leetcode-solution/)
+
+![](image/142.png)
+
+a=c+(n−1)(b+c) 
+
+所以在相遇后，从head再出发一个pre指针，它与slow相遇点就是入环点。
+
+
+
+解释一下为什么慢指针入环第一圈没走完的时候就会和快指针相遇
+
+>  设 环的长度为A,慢指针在入环的时候快指针在环中的位置B(取值范围0到A-1),
+> 当快慢指针相遇时 [慢指针在环中走了C] ,有
+>     C % A = ( B + 2C) % A,等价于 
+>     An + C = B + 2C,合并得
+>     C = An - B
+>     当 n=1 时 , 0 <= C < A
+> 故 慢指针在第一圈必定能和快指针相遇
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def detectCycle(self, head: ListNode) -> ListNode:
+        fast,slow = head,head
+        while True:
+            if fast == None or fast.next == None:
+                return None
+            fast,slow = fast.next.next,slow.next
+            if fast == slow:
+                break
+        fast = head
+        while fast != slow:
+            fast,slow = fast.next,slow.next
+        return fast 
+```
+
+
+
+
+
+## [146. LRU 缓存机制](https://leetcode-cn.com/problems/lru-cache/)
+
+## [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
+
+
+
+## [152. 乘积最大子数组](https://leetcode-cn.com/problems/maximum-product-subarray/)
+
+## [155. 最小栈](https://leetcode-cn.com/problems/min-stack/)
+
+## [160. 相交链表](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/)
+
+## [169. 多数元素](https://leetcode-cn.com/problems/majority-element/)
+
+## [198. 打家劫舍](https://leetcode-cn.com/problems/house-robber/)
+
+## [200. 岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
+
+## [206. 反转链表](https://leetcode-cn.com/problems/reverse-linked-list/)
+
+## [207. 课程表](https://leetcode-cn.com/problems/course-schedule/)
+
+## [208. 实现 Trie (前缀树)](https://leetcode-cn.com/problems/implement-trie-prefix-tree/)
+
+## [215. 数组中的第K个最大元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)
+
+## [221. 最大正方形](https://leetcode-cn.com/problems/maximal-square/)
+
+## [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
+
+## [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+
+## [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+## [238. 除自身以外数组的乘积](https://leetcode-cn.com/problems/product-of-array-except-self/)
+
+## [239. 滑动窗口最大值](https://leetcode-cn.com/problems/sliding-window-maximum/)
+
+## [240. 搜索二维矩阵 II](https://leetcode-cn.com/problems/search-a-2d-matrix-ii/)
+
+## [279. 完全平方数](https://leetcode-cn.com/problems/perfect-squares/)
+
+## [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+## [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
+
+## [297. 二叉树的序列化与反序列化](https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/)
+
+## [300. 最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
+
+## [301. 删除无效的括号](https://leetcode-cn.com/problems/remove-invalid-parentheses/)
+
+## [309. 最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+## [312. 戳气球](https://leetcode-cn.com/problems/burst-balloons/)
+
+## [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/)
+
+## [337. 打家劫舍 III](https://leetcode-cn.com/problems/house-robber-iii/)
+
+## [338. 比特位计数](https://leetcode-cn.com/problems/counting-bits/)
+
+## [347. 前 K 个高频元素](https://leetcode-cn.com/problems/top-k-frequent-elements/)
+
+## [394. 字符串解码](https://leetcode-cn.com/problems/decode-string/)
+
+## [399. 除法求值](https://leetcode-cn.com/problems/evaluate-division/)
+
+## [406. 根据身高重建队列](https://leetcode-cn.com/problems/queue-reconstruction-by-height/)
+
+
+
+## [416. 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/)
+
+## [437. 路径总和 III](https://leetcode-cn.com/problems/path-sum-iii/)
+
+## [438. 找到字符串中所有字母异位词](https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/)
+
+## [448.找到所有数组中消失的数字](# [448. 找到所有数组中消失的数字](https://leetcode-cn.com/problems/find-all-numbers-disappeared-in-an-array/))
+
+点击跳转每日一题
+
+## [461. 汉明距离](https://leetcode-cn.com/problems/hamming-distance/)
+
+## [494. 目标和](https://leetcode-cn.com/problems/target-sum/)
+
+## [538. 把二叉搜索树转换为累加树](https://leetcode-cn.com/problems/convert-bst-to-greater-tree/)
+
+
+
+## [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
+
+
+
+
+
+
+
+## [560. 和为K的子数组](https://leetcode-cn.com/problems/subarray-sum-equals-k/)
+
+
+
+## [581. 最短无序连续子数组](https://leetcode-cn.com/problems/shortest-unsorted-continuous-subarray/)
+
+## [617. 合并二叉树](https://leetcode-cn.com/problems/merge-two-binary-trees/)
+
+深度优先遍历
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def mergeTrees(self, root1: TreeNode, root2: TreeNode) -> TreeNode:
+        if not root1:
+            return root2
+        if not root2:
+            return root1
+        merge = TreeNode(root1.val + root2.val)
+        merge.left = self.mergeTrees(root1.left,root2.left)
+        merge.right = self.mergeTrees(root1.right,root2.right)
+        return merge
+```
+
+
+
+## [621. 任务调度器](https://leetcode-cn.com/problems/task-scheduler/)
+
+
+
+## [647. 回文子串](https://leetcode-cn.com/problems/palindromic-substrings/)
+
+中心拓展法
+
+回文数的中心可能是一个数，也可能是两个相同的数，有中心后向两边拓展。
+
+```python
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+        n = len(s)
+        self.cnt = 0
+        def addcnt(i,j):
+            while i >= 0 and j <= n - 1 and s[i] == s[j]:
+                self.cnt += 1
+                i -= 1
+                j += 1
+        for i in range(n):
+            addcnt(i,i)
+            addcnt(i,i + 1)
+        return self.cnt
+```
+
+## [739. 每日温度](https://leetcode-cn.com/problems/daily-temperatures/)
+
+维护一个单调栈，如果栈为空，填入，如果栈不为空，比较栈顶和当前值大小，如果当前值大，那么栈顶所对应的位置就能用i-stak[-1]来更新，从上往下把小的值全部更新。
+
+```python
+class Solution:
+    def dailyTemperatures(self, T: List[int]) -> List[int]:
+        ans = [0]*len(T)
+        tmp = []
+        for i in range(len(T)):
+            if len(tmp) == 0:
+                tmp.append(i)
+            else:
+                while tmp and T[i] > T[tmp[-1]]:
+                    ans[tmp[-1]] = i - tmp[-1]
+                    tmp.pop()
+                tmp.append(i)
+        return ans 
+```
+
+
+
+
+
 
 
 # 知识点目录
@@ -2927,6 +3211,24 @@ pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 ```
 
 ## 双指针
+
+在链表中常常会用到：
+
+```python
+fast = root.next
+slow = roow
+while 条件:
+    if 判断条件:
+        结果
+    fast = fast .next.next
+    slow = slow.next
+```
+
+fast是从root.next开始还是root开始要自行选择
+
+
+
+
 
 ## 滑动窗口
 
