@@ -2973,15 +2973,162 @@ class Solution:
 
 ## [155. 最小栈](https://leetcode-cn.com/problems/min-stack/)
 
+常数时间内检索到最小元素的栈。所以用了一个辅助栈。
+
+```python
+class MinStack:
+    def __init__(self):
+        self.stack = []
+        self.min_stack = [math.inf]
+
+    def push(self, x: int) -> None:
+        self.stack.append(x)
+        self.min_stack.append(min(x, self.min_stack[-1]))
+
+    def pop(self) -> None:
+        self.stack.pop()
+        self.min_stack.pop()
+
+    def top(self) -> int:
+        return self.stack[-1]
+
+    def getMin(self) -> int:
+        return self.min_stack[-1]
+```
+
+不用辅助空间
+
+```python
+class MinStack:
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.stack = []
+        self.min_value = -1
+
+    def push(self, x: int) -> None:
+        if not self.stack:
+            self.stack.append(0)
+            self.min_value = x
+        else:
+            diff = x-self.min_value
+            self.stack.append(diff)
+            self.min_value = self.min_value if diff > 0 else x
+
+    def pop(self) -> None:
+        if self.stack:
+            diff = self.stack.pop()
+            if diff < 0:
+                top = self.min_value
+                self.min_value = top - diff
+            else:
+                top = self.min_value + diff
+            return top
+
+    def top(self) -> int:
+        return self.min_value if self.stack[-1] < 0 else self.stack[-1] + self.min_value
+
+    def getMin(self) -> int:
+        return self.min_value if self.stack else -1
+```
+
 ## [160. 相交链表](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/)
 
+* 创建两个指针 pApA 和 pBpB，分别初始化为链表 A 和 B 的头结点。然后让它们向后逐结点遍历。
+* 当pA到达链表的尾部时，将它重定位到链表B 的头结点 (你没看错，就是链表 B); 类似的，当pB到达链表的尾部时，将它重定位到链表A的头结点。
+* 若在某一时刻pA和 pB相遇，则 pA/pB为相交结点。
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        curr1, curr2 = headA, headB
+        while curr1 != curr2:
+            curr1 = curr1.next if curr1 else headB
+            curr2 = curr2.next if curr2 else headA
+        return curr1
+```
+
 ## [169. 多数元素](https://leetcode-cn.com/problems/majority-element/)
+
+排序
+
+```python
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        nums.sort()
+        return nums[len(nums) // 2]
+```
+
+哈希表
+
+```python
+class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        counts = collections.Counter(nums)
+        return max(counts.keys(), key=counts.get)
+```
 
 ## [198. 打家劫舍](https://leetcode-cn.com/problems/house-robber/)
 
 ## [200. 岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
 
 ## [206. 反转链表](https://leetcode-cn.com/problems/reverse-linked-list/)
+
+栈
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverseList(self, head: ListNode) -> ListNode:
+        stack = []
+        while head:
+            stack.append(head.val)
+            head = head.next
+        ans = ListNode()
+        tmp = ans
+        while stack:
+            tmp.next = ListNode(stack[-1])
+            stack.pop()
+            tmp = tmp.next
+        return ans.next
+```
+
+迭代
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverseList(self, head: ListNode) -> ListNode:
+        pre = None
+        cur = head
+        while cur:
+            tmp = cur.next
+            cur.next = pre
+            pre = cur
+            cur = tmp
+        return pre
+```
+
+
+
+
+
+
 
 ## [207. 课程表](https://leetcode-cn.com/problems/course-schedule/)
 
@@ -3140,10 +3287,6 @@ class Solution:
 
 
 
-
-
-
-
 # 知识点目录
 
 ## 算法
@@ -3163,7 +3306,94 @@ class Solution:
 - 树与图：最近公共祖先、并查集
 - 字符串：前缀树（字典树） ／ 后缀树
 
+## python类型常用方法
 
+### dict
+
+`字典中值的最大值及其对应的键`
+
+对应的键 max(b,key=b.get)
+
+对应的值 b[max(b,key=b.get)]
+
+## Collections
+
+### Counter
+
+class collections.Counter([iterable-or-mapping])
+
+可以像下面例子一样来创建一个 `Counter`:
+
+```python
+>>> c = Counter()                           # 创建一个新的空counter
+>>> c = Counter('abcasdf')                  # 一个迭代对象生成的counter
+>>> c = Counter({'red': 4, 'yello': 2})      # 一个映射生成的counter
+>>> c = Counter(cats=2, dogs=5)             # 关键字参数生成的counter
+
+# counter 生成counter, 虽然这里并没有什么用
+>>> from collections import Counter
+>>> c = Counter('abcasd')
+>>> c
+Counter({'a': 2, 'c': 1, 'b': 1, 's': 1, 'd': 1})
+>>> c2 = Counter(c)
+>>> c2
+Counter({'a': 2, 'c': 1, 'b': 1, 's': 1, 'd': 1})
+```
+
+因为 `Counter` 实现了字典的 `__missing__` 方法， 所以当访问不存在的key的时候，返回值为0:
+
+```python
+>>> c = Counter(['apple', 'pear'])
+>>> c['orange']
+0
+```
+
+`counter` 常用的方法：
+
+```python
+# elements() 按照counter的计数，重复返回元素
+>>> c = Counter(a=4, b=2, c=0, d=-2)
+>>> list(c.elements())
+['a', 'a', 'a', 'a', 'b', 'b']
+
+# most_common(n) 按照counter的计数，按照降序，返回前n项组成的list; n忽略时返回全部
+>>> Counter('abracadabra').most_common(3)
+[('a', 5), ('r', 2), ('b', 2)]
+
+# subtract([iterable-or-mapping]) counter按照相应的元素，计数相减
+>>> c = Counter(a=4, b=2, c=0, d=-2)
+>>> d = Counter(a=1, b=2, c=3, d=4)
+>>> c.subtract(d)
+>>> c
+Counter({'a': 3, 'b': 0, 'c': -3, 'd': -6})
+
+# update([iterable-or-mapping]) 不同于字典的update方法，这里更新counter时，相同的key的value值相加而不是覆盖
+# 实例化 Counter 时， 实际也是调用这个方法
+
+
+# Counter 间的数学集合操作
+>>> c = Counter(a=3, b=1, c=5)
+>>> d = Counter(a=1, b=2, d=4)
+>>> c + d                       # counter相加, 相同的key的value相加
+Counter({'c': 5, 'a': 4, 'd': 4, 'b': 3})
+>>> c - d                       # counter相减, 相同的key的value相减，只保留正值得value
+Counter({'c': 5, 'a': 2})
+>>> c & d                       # 交集:  取两者都有的key,value取小的那一个
+Counter({'a': 1, 'b': 1})
+>>> c | d                       # 并集:  汇聚所有的key, key相同的情况下，取大的value
+Counter({'c': 5, 'd': 4, 'a': 3, 'b': 2})
+
+常见做法:
+sum(c.values())                 # 继承自字典的.values()方法返回values的列表，再求和
+c.clear()                       # 继承自字典的.clear()方法，清空counter
+list(c)                         # 返回key组成的list
+set(c)                          # 返回key组成的set
+dict(c)                         # 转化成字典
+c.items()                       # 转化成(元素，计数值)组成的列表
+Counter(dict(list_of_pairs))    # 从(元素，计数值)组成的列表转化成Counter
+c.most_common()[:-n-1:-1]       # 最小n个计数的(元素，计数值)组成的列表
+c += Counter()                  # 利用counter的相加来去除负值和0的值
+```
 
 
 
@@ -3209,6 +3439,24 @@ pre = pre[1:][1:]
 # x,y从0起始
 pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 ```
+
+## 差分数组
+
+**定义：**记录当前位置的数与上一位置的数的差值.
+
+|  原数组  |  9   |  3   |  5   |  4   |  2   |
+| :------: | :--: | :--: | :--: | :--: | :--: |
+| 差分数组 |  9   |  -6  |  2   |  -1  |  -2  |
+
+**前缀和的思想**是 根据元素与元素之间的并集关系(和的关系),**求出某些元素的和的值**.
+
+而差分的思想与此不同.
+
+**差分的思想**是 根据元素与元素之间的逻辑关系(大小关系),**求出某一位置元素的值**.
+
+
+
+
 
 ## 双指针
 
