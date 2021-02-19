@@ -1110,6 +1110,51 @@ return sum(nums[::2])
 
 
 
+## [1004. 最大连续1的个数 III](https://leetcode-cn.com/problems/max-consecutive-ones-iii/)
+
+给定一个由若干 0 和 1 组成的数组 A，我们最多可以将 K 个值从 0 变成 1 。
+
+返回仅包含 1 的最长（连续）子数组的长度。
+
+> 示例 1：
+>
+> 输入：A = [1,1,1,0,0,0,1,1,1,1,0], K = 2
+> 输出：6
+> 解释： 
+> [1,1,1,0,0,1,1,1,1,1,1]
+> 粗体数字从 0 翻转到 1，最长的子数组长度为 6。
+>
+> 
+>
+> 示例 2：
+>
+> 输入：A = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1], K = 3
+> 输出：10
+> 解释：
+> [0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1]
+> 粗体数字从 0 翻转到 1，最长的子数组长度为 10。
+
+**提示**：
+
+* 1 <= A.length <= 20000
+* 0 <= K <= A.length
+* A[i] 为 0 或 1 
+
+[1004.py](1004.py)
+
+
+
+`滑动窗口`
+
+窗口内，0的个数大于K时，左端点向右。
+
+
+
+**复杂度分析**：
+
+* 时间复杂度：O(n)，其中 nn 是数组A的长度。我们至多只需要遍历该数组两次（左右指针各一次）。
+* 空间复杂度：O(1)，我们只需要常数的空间保存若干变量。
+
 
 
 
@@ -3140,7 +3185,59 @@ class Solution:
 
 ## [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
 
+DFS
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def invertTree(self, root: TreeNode) -> TreeNode:
+        if not root:
+            return root
+        right = self.invertTree(root.left)
+        left = self.invertTree(root.right)
+        root.left,root.right = left,right
+        return root
+```
+
+
+
 ## [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+
+用数组来存储，上面一种简洁，下面一种快一些。
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def isPalindrome(self, head: ListNode) -> bool:
+        arr = []
+        while head:
+            arr.append(head.val)
+            head = head.next
+        return arr == arr[::-1]
+
+class Solution:
+    def isPalindrome(self, head: ListNode) -> bool:
+        arr = []
+        while head:
+            arr.append(head.val)
+            head = head.next
+        i,j = 0,len(arr)-1
+        while i < j:
+            if arr[i] != arr[j]:
+                return False
+            i += 1
+            j -= 1
+        return True
+```
 
 ## [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
@@ -3153,6 +3250,34 @@ class Solution:
 ## [279. 完全平方数](https://leetcode-cn.com/problems/perfect-squares/)
 
 ## [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+使用双指针，左指针指向当前已经处理好的序列的尾部，右指针指向待处理序列的头部。
+
+右指针不断向右移动，每次右指针指向非零数，则将左右指针对应的数交换，同时左指针右移。
+
+注意到以下性质：
+
+左指针左边均为非零数；
+
+右指针左边直到左指针处均为零。
+
+因此每次交换，都是将左指针的零与右指针的非零数交换，且非零数的相对顺序并未改变。
+
+```python
+class Solution:
+    def moveZeroes(self, nums: List[int]) -> None:
+        n = len(nums)
+        left = right = 0
+        while right < n:
+            if nums[right] != 0:
+                nums[left], nums[right] = nums[right], nums[left]
+                left += 1
+            right += 1
+```
+
+
+
+
 
 ## [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
 
@@ -3194,6 +3319,14 @@ class Solution:
 
 ## [461. 汉明距离](https://leetcode-cn.com/problems/hamming-distance/)
 
+异或，然后数1。
+
+```python
+class Solution:
+    def hammingDistance(self, x: int, y: int) -> int:
+        return bin(x^y).count('1')
+```
+
 ## [494. 目标和](https://leetcode-cn.com/problems/target-sum/)
 
 ## [538. 把二叉搜索树转换为累加树](https://leetcode-cn.com/problems/convert-bst-to-greater-tree/)
@@ -3202,9 +3335,31 @@ class Solution:
 
 ## [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
 
+深度优先遍历
 
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
 
-
+class Solution:
+    def diameterOfBinaryTree(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        self.res=0 #存储最长直径
+        def dfs(root:TreeNode):# 记录每一个子树的深度
+            if not root:
+                return 0
+            l= dfs(root.left)
+            r= dfs(root.right)
+            self.res=max(self.res,l+r)#存储当前节点与之前遍历节点的最长路径
+            return max(l,r)+1 #返回当前子树的最长深度
+        dfs(root)
+        return self.res
+```
 
 
 
