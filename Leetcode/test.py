@@ -1,3 +1,7 @@
-a = bin(-5)
+import collections
 
-print((bin(5)).count('0'))
+nums = [1,2,2,3]
+cnt = collections.Counter(nums)
+
+print(cnt,max(cnt,key = cnt.get),cnt.get(3))
+
