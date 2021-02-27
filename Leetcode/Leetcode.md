@@ -1329,6 +1329,87 @@ sum(c for c,g in zip(customers,grumpy) if g == 0)
 
 
 
+## [832. 翻转图像](https://leetcode-cn.com/problems/flipping-an-image/)
+
+给定一个二进制矩阵 A，我们想先水平翻转图像，然后反转图像并返回结果。
+
+水平翻转图片就是将图片的每一行都进行翻转，即逆序。例如，水平翻转 [1, 1, 0] 的结果是 [0, 1, 1]。
+
+反转图片的意思是图片中的 0 全部被 1 替换， 1 全部被 0 替换。例如，反转 [0, 1, 1] 的结果是 [1, 0, 0]。
+
+>  示例 1:
+>
+> 输入: [[1,1,0],[1,0,1],[0,0,0]]
+> 输出: [[1,0,0],[0,1,0],[1,1,1]]
+> 解释: 首先翻转每一行: [[0,1,1],[1,0,1],[0,0,0]]；
+> 然后反转图片: [[1,0,0],[0,1,0],[1,1,1]]
+>
+> 
+>
+> 示例 2:
+>
+> 输入: [[1,1,0,0],[1,0,0,1],[0,1,1,1],[1,0,1,0]]
+> 输出: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+> 解释: 首先翻转每一行: [[0,0,1,1],[1,0,0,1],[1,1,1,0],[0,1,0,1]]；
+> 然后反转图片: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]
+
+
+
+**说明**:
+
+* 1 <= A.length = A[0].length <= 20
+* 0 <= A[i][j] <= 1
+
+[832.py](832.py)
+
+
+
+**思路**:
+
+先创建一个m行n列的0矩阵，然后如果A\[i\]\[n-j-1\]为0，那么ans\[i\]\[j\]为1。
+
+
+
+或者如果直接对原矩阵进行变换，处理每行时，从两边向中间对称处理，分为相等和不相等两种情况。
+
+
+
+## [395. 至少有K个重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-with-at-least-k-repeating-characters/)
+
+给你一个字符串 s 和一个整数 k ，请你找出 s 中的最长子串， 要求该子串中的每一字符出现次数都不少于 k 。返回这一子串的长度。
+
+ 
+
+> 示例 1：
+>
+> 输入：s = "aaabb", k = 3
+> 输出：3
+> 解释：最长子串为 "aaa" ，其中 'a' 重复了 3 次。
+>
+> 
+>
+> 示例 2：
+>
+> 输入：s = "ababbc", k = 2
+> 输出：5
+> 解释：最长子串为 "ababb" ，其中 'a' 重复了 2 次， 'b' 重复了 3 次。
+
+**提示**：
+
+* 1 <= s.length <= 104
+* s 仅由小写英文字母组成
+* 1 <= k <= 105
+
+[395.py](395.py)
+
+
+
+**思路**:
+
+分治法
+
+我们知道，当一个子串中存在一个个数小于k的时候，那么这个字串长度就是不符合要求的，那么可以根据这个字符，将字符串分割为小字符串，再去检查小的字符串。可以用递归来实现。
+
 
 
 
@@ -3181,6 +3262,114 @@ class Solution:
 
 
 ## [146. LRU 缓存机制](https://leetcode-cn.com/problems/lru-cache/)
+
+自己用哈希表和数组来实现，但get和put时间复杂度比较高。
+
+```python
+class LRUCache:
+
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.dic = {}
+        self.arr = []
+
+    def get(self, key: int) -> int:
+        if key not in self.dic:
+            return -1
+        self.arr.remove(key)
+        self.arr.append(key)
+        return self.dic[key]
+        
+
+    def put(self, key: int, value: int) -> None:
+        if key not in self.dic:
+            self.arr.append(key)
+        self.dic[key] = value
+        self.arr.remove(key)
+        self.arr.append(key)        
+        if len(self.arr) > self.capacity:
+            del self.dic[self.arr[0]]
+            self.arr.pop(0)
+        
+# Your LRUCache object will be instantiated and called as such:
+# obj = LRUCache(capacity)
+# param_1 = obj.get(key)
+# obj.put(key,value)
+```
+
+**进阶**：你是否可以在 `O(1)` 时间复杂度内完成这两种操作？
+
+实现双向链表
+
+```python
+class DLinkedNode:
+    def __init__(self, key=0, value=0):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
+class LRUCache:
+
+    def __init__(self, capacity: int):
+        self.cache = dict()
+        # 使用伪头部和伪尾部节点    
+        self.head = DLinkedNode()
+        self.tail = DLinkedNode()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.capacity = capacity
+        self.size = 0
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        # 如果 key 存在，先通过哈希表定位，再移到头部
+        node = self.cache[key]
+        self.moveToHead(node)
+        return node.value
+
+    def put(self, key: int, value: int) -> None:
+        if key not in self.cache:
+            # 如果 key 不存在，创建一个新的节点
+            node = DLinkedNode(key, value)
+            # 添加进哈希表
+            self.cache[key] = node
+            # 添加至双向链表的头部
+            self.addToHead(node)
+            self.size += 1
+            if self.size > self.capacity:
+                # 如果超出容量，删除双向链表的尾部节点
+                removed = self.removeTail()
+                # 删除哈希表中对应的项
+                self.cache.pop(removed.key)
+                self.size -= 1
+        else:
+            # 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
+            node = self.cache[key]
+            node.value = value
+            self.moveToHead(node)
+    
+    def addToHead(self, node):
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node
+    
+    def removeNode(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def moveToHead(self, node):
+        self.removeNode(node)
+        self.addToHead(node)
+
+    def removeTail(self):
+        node = self.tail.prev
+        self.removeNode(node)
+        return node
+```
 
 ## [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
 
