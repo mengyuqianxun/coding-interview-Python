@@ -1412,6 +1412,87 @@ sum(c for c,g in zip(customers,grumpy) if g == 0)
 
 
 
+## [896. 单调数列](https://leetcode-cn.com/problems/monotonic-array/)
+
+如果数组是单调递增或单调递减的，那么它是单调的。
+
+如果对于所有 i <= j，A[i] <= A[j]，那么数组 A 是单调递增的。 如果对于所有 i <= j，A[i]> = A[j]，那么数组 A 是单调递减的。
+
+当给定的数组 A 是单调数组时返回 true，否则返回 false。
+
+> 示例 1：
+>
+> 输入：[1,2,2,3]
+> 输出：true
+>
+> 
+>
+> 示例 2：
+>
+> 输入：[6,5,4,4]
+> 输出：true
+>
+> 
+>
+> 示例 3：
+>
+> 输入：[1,3,2]
+> 输出：false
+>
+> 
+>
+> 示例 4
+>
+> 输入：[1,2,4,5]
+> 输出：true
+>
+> 
+>
+> 示例 5：
+>
+> 输入：[1,1,1]
+> 输出：true
+
+**提示**：
+
+* 1 <= A.length <= 50000
+* -100000 <= A[i] <= 100000
+
+
+
+**思路**:
+
+要么就用定义，一次遍历；要么利用python的神奇函数all()和sorted()。
+
+```python
+class Solution:
+    def isMonotonic(self, A: List[int]) -> bool:
+        n = len(A)
+        if n == 1:
+            return True
+        sign = A[1] - A[0]
+        for i in range(1,n):
+            if sign * (A[i] - A[i-1]) < 0:
+                return False
+            if A[i] - A[i-1] != 0:
+                sign = A[i] - A[i-1]
+        return True
+
+
+class Solution:
+    def isMonotonic(self, A: List[int]) -> bool:
+        return all([A[i-1]<=A[i] for i in range(1,len(A))]) or all([A[i-1]>=A[i] for i in range(1,len(A))])
+
+
+class Solution:
+    def isMonotonic(self, A: List[int]) -> bool:
+		return A == sorted(A) or A == sorted(A, reverse=True)
+```
+
+
+
+
+
 
 # Leetcode热题Hot100
 
@@ -4475,6 +4556,12 @@ def generateParenthesis(self, n: int) -> List[str]:
     return ans
 ```
 
+## 组合问题
+
+### 状态压缩
+
+
+
 ## 并查集DisjointSets
 
 ### 定义
@@ -4785,6 +4872,96 @@ class Solution:
                 x = c
                 cnt = 1
         return ans % 1000000007
+```
+
+
+
+## 第 230 场周赛
+
+https://leetcode-cn.com/contest/weekly-contest-230
+
+### [5689. 统计匹配检索规则的物品数量](https://leetcode-cn.com/problems/count-items-matching-a-rule/)
+
+枚举
+
+```python
+class Solution:
+    def countMatches(self, items: List[List[str]], ruleKey: str, ruleValue: str) -> int:
+        index = ['type','color','name'].index(ruleKey)
+        count = 0
+        for i in range(len(items)):
+            if items[i][index] == ruleValue:
+                count += 1
+        return count
+```
+
+### [5690. 最接近目标价格的甜点成本](https://leetcode-cn.com/problems/closest-dessert-cost/)
+
+暴力破解
+
+这里，baseCost每次都会增多，两个for循环后，baseCost里面所有类型都有了
+
+```python
+class Solution:
+    def closestCost(self, baseCosts: List[int], toppingCosts: List[int], target: int) -> int:
+        res = float("-inf"); cost = float("inf")
+        for toppingCost in toppingCosts:
+            tmp = []
+            for baseCost in baseCosts:
+                tmp.append(baseCost + toppingCost)
+                tmp.append(baseCost + 2*toppingCost)
+            baseCosts.extend(tmp)
+        for baseCost in baseCosts:
+            if baseCost == target:
+                return baseCost
+            if baseCost < target:
+                res = max(res,baseCost)
+            if baseCost > target:
+                cost = min(cost,baseCost)
+        return res if target-res <= cost-target else cost
+```
+
+有空回来用这几种办法做：回溯法、dps、状态压缩、二进制
+
+
+
+### [5691. 通过最少操作次数使数组的和相等](https://leetcode-cn.com/problems/equal-sum-arrays-with-minimum-number-of-operations/)
+
+先排序，然后用双指针来做
+
+基于贪心，如果最后diff只剩3，但我们还能取更大的变化，此时更大的变化自动缩小为合适的3。不像只有固定大小的零件，不可以变化。
+
+```python
+class Solution:
+    def minOperations(self, nums1: List[int], nums2: List[int]) -> int:
+    	sum1,sum2 = sum(nums1),sum(nums2)
+    	if sum1 == sum2:
+    		return 0
+    	elif sum1 > sum2:
+    		sum1,sum2 = sum2,sum1
+    		nums1,nums2 = nums2,nums1
+    	nums1.sort()
+    	nums2.sort()
+    	diff = sum2 - sum1
+    	#nums1从左往右	nums2从右往左
+    	n1,n2 = len(nums1),len(nums2)
+    	left,right = 0,n2 - 1
+    	count = 0
+    	while left < n1 or right >= 0:
+    		left_diff = 6 - nums1[left] if left < n1 else 0
+    		right_diff = nums2[right] - 1 if right >= 0 else 0
+    		if left_diff == 0 and right_diff == 0:
+    			break
+    		if left_diff >= right_diff:
+    			diff -= left_diff
+    			left += 1
+    		else:
+    			diff -= right_diff
+    			right -= 1
+    		count += 1
+    		if diff <= 0:
+    			break
+    	return count if diff <= 0 else -1
 ```
 
 
