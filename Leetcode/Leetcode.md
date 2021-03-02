@@ -1489,6 +1489,114 @@ class Solution:
 		return A == sorted(A) or A == sorted(A, reverse=True)
 ```
 
+## [303. 区域和检索 - 数组不可变](https://leetcode-cn.com/problems/range-sum-query-immutable/)
+
+给定一个整数数组  nums，求出数组从索引 i 到 j（i ≤ j）范围内元素的总和，包含 i、j 两点。
+
+实现 NumArray 类：
+
+NumArray(int[] nums) 使用数组 nums 初始化对象int sumRange(int i, int j) 返回数组 nums 从索引 i 到 j（i ≤ j）范围内元素的总和，包含 i、j 两点（也就是 sum(nums[i], nums[i + 1], ... , nums[j])）
+
+> 示例：
+>
+> 输入：
+> ["NumArray", "sumRange", "sumRange", "sumRange"]
+> [[[-2, 0, 3, -5, 2, -1]], [0, 2], [2, 5], [0, 5]]
+> 输出：
+> [null, 1, -1, -3]
+>
+> 解释：
+> NumArray numArray = new NumArray([-2, 0, 3, -5, 2, -1]);
+> numArray.sumRange(0, 2); // return 1 ((-2) + 0 + 3)
+> numArray.sumRange(2, 5); // return -1 (3 + (-5) + 2 + (-1)) 
+> numArray.sumRange(0, 5); // return -3 ((-2) + 0 + 3 + (-5) + 2 + (-1))
+
+**提示**：
+
+* 0 <= nums.length <= 104
+* -105 <= nums[i] <= 105
+* 0 <= i <= j < nums.length
+* 最多调用 104 次 sumRange 方法
+
+
+
+`思路`：
+
+为了提高sumRange的搜索效率，我们可以用`前缀和`来记录加和，这样可以用O(1)的时间来实现函数。
+
+注意前缀和数组最前面的0，是为了防止i=0的情况arr[j + 1] - arr[i]得到的是 i:j 的和。
+
+```python
+class NumArray:
+
+    def __init__(self, nums: List[int]):
+        self.nums = nums
+        self.sumnums = [0]
+        for num in nums:
+            self.sumnums.append(self.sumnums[-1] + num)
+
+    def sumRange(self, i: int, j: int) -> int:
+        return self.sumnums[j + 1] - self.sumnums[i]
+
+
+# Your NumArray object will be instantiated and called as such:
+# obj = NumArray(nums)
+# param_1 = obj.sumRange(i,j)
+```
+
+## [304. 二维区域和检索 - 矩阵不可变](https://leetcode-cn.com/problems/range-sum-query-2d-immutable/)
+
+给定一个二维矩阵，计算其子矩形范围内元素的总和，该子矩阵的左上角为 (row1, col1) ，右下角为 (row2, col2) 。
+
+
+上图子矩阵左上角 (row1, col1) = (2, 1) ，右下角(row2, col2) = (4, 3)，该子矩形内元素的总和为 8。
+
+ ![](image/304.png)
+
+> 示例：
+>
+> 给定 matrix = [
+>   [3, 0, 1, 4, 2],
+>   [5, 6, 3, 2, 1],
+>   [1, 2, 0, 1, 5],
+>   [4, 1, 0, 1, 7],
+>   [1, 0, 3, 0, 5]
+> ]
+>
+> 
+>
+> sumRegion(2, 1, 4, 3) -> 8
+> sumRegion(1, 1, 2, 2) -> 11
+> sumRegion(1, 2, 2, 4) -> 12
+
+**提示：**
+
+- 你可以假设矩阵不可变。
+- 会多次调用 `sumRegion` 方法*。*
+- 你可以假设 `row1 ≤ row2` 且 `col1 ≤ col2` 。
+
+
+
+`思路`：
+
+经典二维前缀和
+
+每个维度都会大1，因为要考虑row，col为0时候。
+
+```python
+class NumMatrix:
+    def __init__(self, matrix: List[List[int]]):
+        self.matrix = matrix
+        m,n = len(matrix),(len(matrix[0]) if matrix else 0)
+        self.rsum = [[0]*(n + 1) for _ in range(m + 1)]
+        for i in range(1,m + 1):
+            for j in range(1,n + 1):
+                self.rsum[i][j] = self.rsum[i - 1][j] + self.rsum[i][j - 1] - self.rsum[i - 1][j - 1] + matrix[i - 1][j - 1]
+
+    def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+        return self.rsum[row2 + 1][col2 + 1] - self.rsum[row2 + 1][col1] - self.rsum[row1][col2 + 1] + self.rsum[row1][col1]
+```
+
 
 
 
@@ -4016,9 +4124,9 @@ c += Counter()                  # 利用counter的相加来去除负值和0的�
 pre = [0]
 for num in nums:
     pre.append(pre[-1] + num)
-pre = pre[1:]
 #  使用，等价于 nums[i] + nums[i + 1] + ... + nums[j]
-pre[j] - pre[i-1] 
+#  需要考虑到第0：j的和，所以最前面需要有一个0
+pre[j+1] - pre[i] 
 ```
 
 ### 二维前缀和
@@ -4031,7 +4139,6 @@ pre = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
 for i in range(1, m+1):
     for j in range(1, n+1):
         pre[i][j] = pre[i-1][j]+ pre[i][j-1] - pre[i-1][j-1] + matrix[i-1][j-1]
-pre = pre[1:][1:]
 # 使用，等价于以(x1,y1)为矩阵左上角以(x2,y2)为矩阵右下角的所有格子的和
 # x,y从0起始
 pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
