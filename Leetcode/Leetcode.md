@@ -1665,9 +1665,43 @@ $$
 
 
 
+## [1047. 删除字符串中的所有相邻重复项](https://leetcode-cn.com/problems/remove-all-adjacent-duplicates-in-string/)
+
+给出由小写字母组成的字符串 S，重复项删除操作会选择两个相邻且相同的字母，并删除它们。
+
+在 S 上反复执行重复项删除操作，直到无法继续删除。
+
+在完成所有重复项删除操作后返回最终的字符串。答案保证唯一。
+
+> 示例：
+>
+> 输入："abbaca"
+> 输出："ca"
+> 解释：
+> 例如，在 "abbaca" 中，我们可以删除 "bb" 由于两字母相邻且相同，这是此时唯一可以执行删除操作的重复项。之后我们得到字符串 "aaca"，其中又只有 "aa" 可以执行重复项删除操作，所以最后的字符串为 "ca"。
+
+**提示**：
+
+1 <= S.length <= 20000
+S 仅由小写英文字母组成。
 
 
 
+`思路`：
+
+可以使用栈的思想，如果栈为空或者新元素不等于栈顶元素，则将新元素压入栈中，否则将栈顶元素弹出，最后再组合字符串。
+
+```python
+class Solution:
+    def removeDuplicates(self, S: str) -> str:
+        stk = list()
+        for s in S:
+            if not stk or stk[-1] != s:
+                stk.append(s)
+            else:
+                stk.pop()
+        return ''.join(stk)
+```
 
 
 
@@ -4234,7 +4268,12 @@ pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 
 **差分的思想**是 根据元素与元素之间的逻辑关系(大小关系),**求出某一位置元素的值**.
 
+```python
+pre = [nums[0]]
+for i in range(1,len(nums)):
+    pre.append(nums[i]-nums[i-1])
 
+```
 
 ## 位运算
 
@@ -4259,9 +4298,9 @@ pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 
 ### 按位或运算符（|）
 
-常用来对一个数据的某些位置1。
+常用来对一个数据的某些位设置1。
 
-方法：找到一个数，对应X要置1的位，该数的对应位为1，其余位为零。此数与X相或可使X中的某些位置1。
+方法：找到一个数，对应X要置1的位，该数的对应位为1，其余位为零。此数与X相或可使X中的某些位设置1。
 
 例：将X=10100000的低4位置1 ，用X | 0000 1111 = 1010 1111即可得到。
 
@@ -4279,17 +4318,15 @@ pre[x2][y2] + pre[x1-1][y1-1] - pre[x1-1][y2] - pre[x2][y2-1]
 
 ```python
 fast = root.next
-slow = roow
+slow = root
 while 条件:
     if 判断条件:
         结果
-    fast = fast .next.next
+    fast = fast.next.next
     slow = slow.next
 ```
 
 fast是从root.next开始还是root开始要自行选择
-
-
 
 
 
@@ -4341,7 +4378,7 @@ return 结果
         	更新窗口内信息（前指针进窗口，后指针出窗口）
        		end += 1
         	更新答案
-        返回 ans
+        return ans
 ```
 
 **推荐**：i从winsize开始到n结束
@@ -4418,8 +4455,6 @@ def find_last_position(nums, target):
 	else:
 		return -1
 ```
-
-
 
 
 
@@ -4568,7 +4603,7 @@ class Solution:
 `算法流程`
 
 1. 首先将根节点放入**stack**中。
-2. 从*stack*中取出第一个节点，并检验它是否为目标。如果找到所有的节点，则结束搜寻并回传结果。否则将它某一个尚未检验过的直接子节点加入**stack**中。
+2. 从**stack**中取出第一个节点，并检验它是否为目标。如果找到所有的节点，则结束搜寻并回传结果。否则将它某一个尚未检验过的直接子节点加入**stack**中。
 3. 重复步骤 2。
 4. 如果不存在未检测过的直接子节点。将上一级节点加入**stack**中。 重复步骤 2。
 5. 重复步骤 4。
@@ -4684,7 +4719,8 @@ class Solution:
             # 遍历当前层的所有节点
             for _ in range(size):
                 node = queue.popleft()
-                if (step == k) ans.append(node)
+                if (step == k):
+                    ans.append(node)
                 if node.right:
                     queue.append(node.right)
                 if node.left:
@@ -4709,7 +4745,8 @@ class Solution:
         while queue:
             node = queue.popleft()
             # 由于没有记录 steps，因此我们肯定是不需要根据层的信息去判断的。否则就用带层的模板了。
-            if (node 是我们要找到的) return node
+            if (node 是我们要找到的):
+                return node
             if node.right:
                 queue.append(node.right)
             if node.left:
@@ -4731,29 +4768,30 @@ class Solution:
 
 下面的模板是，遍历digits里每个digit对应的字典里的所有letter
 
-{'1':'abc,'2':'de'}，则遍历['ad','ae'','bd','de','cd','ce']
+{'1':'abc,'2':'de'}，输出为['ad','ae'','bd','de','cd','ce']
 
 ```python
-    dic = {}
-    def backtrack(index):
-        if index == len(digits):
-            combs.append("".join(comb))
-        else:
-            digit = digits[index]
-            for letter in dic[digit]:
-                comb.append(letter)
-                backtrack(index + 1)
-                comb.pop()
-    comb = list()
-    combs = list()
-    backtrack(0)
+digits = {'1':'abc','2':'de'}
+lis = list(digits.keys())
+def trackback(index):
+	if index == len(digits):
+		ans.append(''.join(comb))
+	else:		
+		digit = lis[index]
+		for letter in digits[digit]:
+			comb.append(letter)
+			trackback(index+1)
+			comb.pop()
+comb = []
+ans = []
+trackback(0)
 ```
 
 ### 有条件限制的所有组合
 
 下面的模板是：给定n，n对括号()的有效组合
 
-想象成树的有条件分支就比较好理解
+想象成树的有条件分支就比较好理解,只有有左分支，才能有右分支
 
 ```python
 def generateParenthesis(self, n: int) -> List[str]:
